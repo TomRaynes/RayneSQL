@@ -9,6 +9,7 @@ public class ConditionParser {
 
     public ConditionNode parseCondition(ArrayList<Token> tokens) throws Exception {
         removeSemicolon(tokens);
+        // TODO: Check that no ANDs and ORs are inside the same brackets
         return buildConditionTree(tokens);
     }
 
@@ -25,7 +26,7 @@ public class ConditionParser {
     private ConditionNode buildConditionTree(ArrayList<Token> tokens) throws Exception {
 
         while (removeOuterBrackets(tokens));
-        BooleanNode node = createBooleanNode(tokens);
+        BooleanNode node = findBooleanTokens(tokens);
         if (node != null) return node;
         return createCondition(tokens);
     }
@@ -47,9 +48,10 @@ public class ConditionParser {
         return new Condition(attribute, comparator, value);
     }
 
-    private BooleanNode createBooleanNode(ArrayList<Token> tokens) throws Exception {
+    private BooleanNode findBooleanTokens(ArrayList<Token> tokens) throws Exception {
 
         int nestingLevel = 0;
+        Token booleanToken = null;
 
         for (int index=0; index<tokens.size(); index++) {
             TokenType type = tokens.get(index).getType();
@@ -58,19 +60,28 @@ public class ConditionParser {
             else if (type == TokenType.CLOSE_BRACKET) nestingLevel--;
             else if (nestingLevel == 0 && (type == TokenType.AND || type == TokenType.OR)) {
 
-                if (tokens.get(index+1).getType() == TokenType.EOT) throw new Exception();
-
-                ArrayList<Token> leftChild = new ArrayList<>(tokens.subList(0, index));
-                ArrayList<Token> rightChild = new ArrayList<>(tokens.subList(index+1, tokens.size()));
-                leftChild.add(new Token("\u0004"));
-
-                BooleanNode node = new BooleanNode(type);
-                node.setLeftChild(buildConditionTree(leftChild));
-                node.setRightChild(buildConditionTree(rightChild));
-                return node;
+                if (booleanToken == null) booleanToken = tokens.get(index);
+                else if (booleanToken.getType() != tokens.get(index).getType()) {
+                    throw new Exception();
+                }
             }
         }
-        return null;
+        return booleanToken == null ? null : createBooleanNode(tokens, booleanToken);
+    }
+
+    private BooleanNode createBooleanNode(ArrayList<Token> tokens, Token operator) throws Exception {
+
+        int index = tokens.indexOf(operator);
+        if (tokens.get(index+1).getType() == TokenType.EOT) throw new Exception();
+
+        ArrayList<Token> leftChild = new ArrayList<>(tokens.subList(0, index));
+        ArrayList<Token> rightChild = new ArrayList<>(tokens.subList(index+1, tokens.size()));
+        leftChild.add(new Token("\u0004"));
+
+        BooleanNode node = new BooleanNode(operator.getType());
+        node.setLeftChild(buildConditionTree(leftChild));
+        node.setRightChild(buildConditionTree(rightChild));
+        return node;
     }
 
     private boolean removeOuterBrackets(ArrayList<Token> tokens) throws Exception {

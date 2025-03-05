@@ -28,9 +28,9 @@ public class Parser {
             case ALTER -> parseAlterQuery();
             case INSERT -> parseInsertQuery();
             case SELECT -> parseSelectQuery();
-//            case UPDATE -> parseUpdateQuery();
-//            case DELETE -> parseDeleteQuery();
-//            case JOIN -> parseJoinQuery();
+            case UPDATE -> parseUpdateQuery();
+            case DELETE -> parseDeleteQuery();
+            case JOIN -> parseJoinQuery();
             default -> throw new Exception();
         };
     }
@@ -39,13 +39,11 @@ public class Parser {
 
         expectTokenType(TokenType.IDENTIFIER);
         index++;
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new UseCommand(tokens.get(index).toString());
     }
 
     private Command parseCreateQuery() throws Exception {
-
-        expectToken();
 
         return switch (tokens.get(index++).getType()) {
             case DATABASE -> parseCreateDatabaseQuery();
@@ -58,7 +56,7 @@ public class Parser {
 
         expectTokenType(TokenType.IDENTIFIER);
         String databaseName = tokens.get(index++).toString();
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new CreateDatabaseCommand(databaseName);
     }
 
@@ -79,13 +77,11 @@ public class Parser {
         while (tokens.get(index).getType() != TokenType.CLOSE_BRACKET);
 
         index++;
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new CreateTableCommand(tableName, attributes);
     }
 
     private Command parseDropQuery() throws Exception {
-
-        expectToken();
 
         return switch (tokens.get(index++).getType()) {
             case DATABASE -> parseDropDatabaseQuery();
@@ -98,7 +94,7 @@ public class Parser {
 
         expectTokenType(TokenType.IDENTIFIER);
         String databaseName = tokens.get(index++).toString();
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new DropDatabaseCommand(databaseName);
     }
 
@@ -106,7 +102,7 @@ public class Parser {
 
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new DropTableCommand(tableName);
     }
 
@@ -120,7 +116,7 @@ public class Parser {
         String alterationType = tokens.get(index++).toString();
         expectTokenType(TokenType.IDENTIFIER);
         String attribute = tokens.get(index++).toString();
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new AlterCommand(tableName, alterationType, attribute);
     }
 
@@ -144,13 +140,13 @@ public class Parser {
         while (tokens.get(index).getType() != TokenType.CLOSE_BRACKET);
 
         index++;
-        expectTokenType(TokenType.SEMICOLON);
+        expectTerminalTokens();
         return new InsertCommand(tableName, values);
     }
 
     private SelectCommand parseSelectQuery() throws Exception {
 
-        expectToken();
+        expectTokenType(TokenType.WILDCARD, TokenType.IDENTIFIER);
         ArrayList<String> attributes = null;
         ConditionNode condition = null;
 
@@ -162,14 +158,78 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
 
-        if (tokens.get(index).getType() != TokenType.EOT) {
-            ArrayList<Token> conditionTokens = new ArrayList<>();
-            do conditionTokens.add(tokens.get(index++));
-            while (tokens.get(index).getType() != TokenType.EOT);
-            ConditionParser conditionParser = new ConditionParser();
-            condition = conditionParser.parseCondition(conditionTokens);
+        if (tokens.get(index).getType() != TokenType.SEMICOLON) {
+            condition = getCondition();
         }
         return new SelectCommand(tableName, attributes, condition);
+    }
+
+    private UpdateCommand parseUpdateQuery() throws Exception {
+
+        expectTokenType(TokenType.IDENTIFIER);
+        String tableName = tokens.get(index++).toString();
+        expectTokenType(TokenType.SET);
+        index++;
+        ArrayList<NameValuePair> nameValuePairs = new ArrayList<>();
+
+        do nameValuePairs.add(getNameValuePair());
+        while (tokens.get(index++).getType() == TokenType.COMMA);
+
+        index--;
+        ConditionNode condition = getCondition();
+        return new UpdateCommand(tableName, nameValuePairs, condition);
+    }
+
+    private DeleteCommand parseDeleteQuery() throws Exception {
+
+        expectTokenType(TokenType.FROM);
+        index++;
+        expectTokenType(TokenType.IDENTIFIER);
+        String tableName = tokens.get(index++).toString();
+        ConditionNode condition = getCondition();
+        return new DeleteCommand(tableName, condition);
+    }
+
+    private JoinCommand parseJoinQuery() throws Exception {
+
+        expectTokenType(TokenType.IDENTIFIER);
+        String tableName1 = tokens.get(index++).toString();
+        expectTokenType(TokenType.AND);
+        index++;
+        expectTokenType(TokenType.IDENTIFIER);
+        String tableName2 = tokens.get(index++).toString();
+        expectTokenType(TokenType.ON);
+        index++;
+        expectTokenType(TokenType.IDENTIFIER);
+        String attribute1 = tokens.get(index++).toString();
+        expectTokenType(TokenType.AND);
+        String attribute2 = tokens.get(index++).toString();
+        expectTerminalTokens();
+        return new JoinCommand(tableName1, tableName2, attribute1, attribute2);
+    }
+
+    private NameValuePair getNameValuePair() throws Exception {
+        expectTokenType(TokenType.IDENTIFIER);
+        String attribute = tokens.get(index++).toString();
+        expectTokenType(TokenType.ASSIGNMENT_EQUALS);
+        index++;
+        expectTokenType(TokenType.STRING_LITERAL, TokenType.TRUE, TokenType.FALSE,
+                TokenType.FLOAT_LITERAL, TokenType.INTEGER_LITERAL, TokenType.NULL);
+        Token value = tokens.get(index++);
+        return new NameValuePair(attribute, value);
+    }
+
+    private ConditionNode getCondition() throws Exception {
+
+        expectTokenType(TokenType.WHERE);
+        index++;
+        ArrayList<Token> conditionTokens = new ArrayList<>();
+
+        do conditionTokens.add(tokens.get(index));
+        while (tokens.get(index++).getType() != TokenType.EOT);
+
+        ConditionParser conditionParser = new ConditionParser();
+        return conditionParser.parseCondition(conditionTokens);
     }
 
     private ArrayList<String> getAttributeList() throws Exception {
@@ -185,13 +245,6 @@ public class Parser {
         return attributeList;
     }
 
-    private void expectToken() throws Exception {
-
-        if (tokens.get(index).getType() == TokenType.EOT) {
-            throw new Exception();
-        }
-    }
-
     private void expectTokenType(TokenType... types) throws Exception {
 
         for (TokenType type : types) {
@@ -200,7 +253,9 @@ public class Parser {
         throw new Exception();
     }
 
-    private boolean followingTokenExists() {
-        return tokens.get(index).getType() != TokenType.EOT;
+    private void expectTerminalTokens() throws Exception {
+        expectTokenType(TokenType.SEMICOLON);
+        index++;
+        expectTokenType(TokenType.EOT);
     }
 }

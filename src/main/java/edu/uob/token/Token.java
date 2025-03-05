@@ -44,11 +44,13 @@ public class Token {
             case "JOIN" -> TokenType.JOIN;
             case "AND" -> TokenType.AND;
             case "OR" -> TokenType.OR;
+            case "ON" -> TokenType.ON;
             case "(" -> TokenType.OPEN_BRACKET;
             case ")" -> TokenType.CLOSE_BRACKET;
             case "*" -> TokenType.WILDCARD;
             case "," -> TokenType.COMMA;
             case ";" -> TokenType.SEMICOLON;
+            case "=" -> TokenType.ASSIGNMENT_EQUALS;
             case ">", ">=", "==", "<=", "<", "LIKE" -> TokenType.COMPARATOR;
             case "NULL" -> TokenType.NULL;
             case "\u0004" -> TokenType.EOT;

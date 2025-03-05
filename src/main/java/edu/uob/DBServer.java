@@ -25,7 +25,7 @@ public class DBServer {
     public static void main(String[] args) throws Exception { // throws IOException
         DBServer server = new DBServer();
 
-        Tokeniser tokeniser = new Tokeniser("(name == 'james' OR (pass == FALSE AND mark > 35)) AND name == 'tom';");
+        Tokeniser tokeniser = new Tokeniser("((pass == FALSE) AND (mark > 35)) OR name == 'tom' OR name == 'james';");
         ArrayList<Token> tokens = tokeniser.getAllTokens();
         ConditionParser parser = new ConditionParser();
         ConditionNode node = parser.parseCondition(tokens);
