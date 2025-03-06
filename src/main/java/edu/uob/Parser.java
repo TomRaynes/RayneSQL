@@ -218,8 +218,7 @@ public class Parser {
         do conditionTokens.add(tokens.get(index));
         while (tokens.get(index++).getType() != TokenType.EOT);
 
-        ConditionParser conditionParser = new ConditionParser();
-        return conditionParser.parseCondition(conditionTokens);
+        return ConditionParser.parseCondition(conditionTokens);
     }
 
     private ArrayList<String> getValueList(boolean select, TokenType... expect) throws Exception {

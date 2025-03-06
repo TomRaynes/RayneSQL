@@ -5,14 +5,14 @@ import edu.uob.token.TokenType;
 
 import java.util.ArrayList;
 
-public class ConditionParser {
+public final class ConditionParser {
 
-    public ConditionNode parseCondition(ArrayList<Token> tokens) throws Exception {
+    public static ConditionNode parseCondition(ArrayList<Token> tokens) throws Exception {
         removeSemicolon(tokens);
         return buildConditionTree(tokens);
     }
 
-    private void removeSemicolon(ArrayList<Token> tokens) throws Exception {
+    private static void removeSemicolon(ArrayList<Token> tokens) throws Exception {
 
         int semicolonIndex = tokens.size()-2;
 
@@ -22,7 +22,7 @@ public class ConditionParser {
         else throw new Exception();
     }
 
-    private ConditionNode buildConditionTree(ArrayList<Token> tokens) throws Exception {
+    private static ConditionNode buildConditionTree(ArrayList<Token> tokens) throws Exception {
 
         while (removeOuterBrackets(tokens));
         BooleanNode node = findBooleanTokens(tokens);
@@ -30,7 +30,7 @@ public class ConditionParser {
         return createCondition(tokens);
     }
 
-    private Condition createCondition(ArrayList<Token> tokens) throws Exception {
+    private static Condition createCondition(ArrayList<Token> tokens) throws Exception {
 
         int index = 0;
         expectTokenType(tokens, index, TokenType.IDENTIFIER);
@@ -47,7 +47,7 @@ public class ConditionParser {
         return new Condition(attribute, comparator, value);
     }
 
-    private BooleanNode findBooleanTokens(ArrayList<Token> tokens) throws Exception {
+    private static BooleanNode findBooleanTokens(ArrayList<Token> tokens) throws Exception {
 
         int nestingLevel = 0;
         Token booleanToken = null;
@@ -68,7 +68,7 @@ public class ConditionParser {
         return booleanToken == null ? null : createBooleanNode(tokens, booleanToken);
     }
 
-    private BooleanNode createBooleanNode(ArrayList<Token> tokens, Token operator) throws Exception {
+    private static BooleanNode createBooleanNode(ArrayList<Token> tokens, Token operator) throws Exception {
 
         int index = tokens.indexOf(operator);
         if (tokens.get(index+1).getType() == TokenType.EOT) throw new Exception();
@@ -83,7 +83,7 @@ public class ConditionParser {
         return node;
     }
 
-    private boolean removeOuterBrackets(ArrayList<Token> tokens) throws Exception {
+    private static boolean removeOuterBrackets(ArrayList<Token> tokens) throws Exception {
 
         int index = 0;
         if (tokens.get(index++).getType() != TokenType.OPEN_BRACKET) return false;
@@ -113,7 +113,7 @@ public class ConditionParser {
         return false;
     }
 
-    private void expectTokenType(ArrayList<Token> tokens, int index,
+    private static void expectTokenType(ArrayList<Token> tokens, int index,
                                  TokenType... types) throws Exception {
 
         for (TokenType type : types) {
