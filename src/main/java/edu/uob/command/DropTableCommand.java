@@ -7,4 +7,8 @@ public class DropTableCommand extends Command {
     public DropTableCommand(String tableName) {
         this.tableName = tableName;
     }
+
+    public String getClassAttributes() {
+        return tableName;
+    }
 }

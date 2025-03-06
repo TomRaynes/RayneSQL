@@ -12,4 +12,8 @@ public class InsertCommand extends Command {
         this.values = values;
 
     }
+
+    public String getClassAttributes() {
+        return tableName + listToString(values);
+    }
 }

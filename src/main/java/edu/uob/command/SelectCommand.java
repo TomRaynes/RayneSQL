@@ -15,4 +15,12 @@ public class SelectCommand extends Command {
         this.attributes = attributes;
         this.condition = condition;
     }
+
+    public String getClassAttributes() {
+
+        String attributeList;
+        if (attributes == null) attributeList = ", *";
+        else attributeList = listToString(attributes);
+        return tableName + attributeList + ", " + ConditionNode.getTreeAsString(condition);
+    }
 }

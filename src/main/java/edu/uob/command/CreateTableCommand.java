@@ -11,4 +11,8 @@ public class CreateTableCommand extends Command {
         this.tableName = tableName;
         this.attributes = attributes;
     }
+
+    public String getClassAttributes() {
+        return attributes == null ? tableName : tableName + listToString(attributes);
+    }
 }

@@ -13,4 +13,8 @@ public class JoinCommand extends Command {
         this.attribute1 = attribute1;
         this.attribute2 = attribute2;
     }
+
+    public String getClassAttributes() {
+        return tableName1 + ", " + tableName2 + ", " + attribute1 + ", " + attribute2;
+    }
 }

@@ -11,4 +11,8 @@ public class AlterCommand extends Command {
         this.alterationType = alterationType;
         this.attribute = attribute;
     }
+
+    public String getClassAttributes() {
+        return tableName + ", " + alterationType + ", " + attribute;
+    }
 }

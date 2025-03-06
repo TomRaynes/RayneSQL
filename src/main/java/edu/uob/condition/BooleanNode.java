@@ -22,6 +22,7 @@ public class BooleanNode extends ConditionNode {
         System.out.println(type);
     }
 
-
-
+    public String toString() {
+        return type.toString();
+    }
 }

@@ -7,6 +7,7 @@ import edu.uob.token.Token;
 import edu.uob.token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Parser {
 
@@ -38,9 +39,9 @@ public class Parser {
     private UseCommand parseUseQuery() throws Exception {
 
         expectTokenType(TokenType.IDENTIFIER);
-        index++;
+        String databaseName = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new UseCommand(tokens.get(index).toString());
+        return new UseCommand(databaseName);
     }
 
     private Command parseCreateQuery() throws Exception {
@@ -64,19 +65,13 @@ public class Parser {
 
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
-        ArrayList<String> attributes = new ArrayList<>();
+        ArrayList<String> attributes = null; // = new ArrayList<>();
 
         if (tokens.get(index).getType() != TokenType.SEMICOLON) {
             expectTokenType(TokenType.OPEN_BRACKET);
             index++;
+            attributes = getValueList(false, TokenType.IDENTIFIER);
         }
-        do {
-            expectTokenType(TokenType.IDENTIFIER);
-            attributes.add(tokens.get(index++).toString());
-        }
-        while (tokens.get(index).getType() != TokenType.CLOSE_BRACKET);
-
-        index++;
         expectTerminalTokens();
         return new CreateTableCommand(tableName, attributes);
     }
@@ -130,16 +125,8 @@ public class Parser {
         index++;
         expectTokenType(TokenType.OPEN_BRACKET);
         index++;
-        ArrayList<String> values = new ArrayList<>();
-
-        do {
-            expectTokenType(TokenType.STRING_LITERAL, TokenType.TRUE, TokenType.FALSE,
-                    TokenType.FLOAT_LITERAL, TokenType.INTEGER_LITERAL, TokenType.NULL);
-            values.add(tokens.get(index++).toString());
-        }
-        while (tokens.get(index).getType() != TokenType.CLOSE_BRACKET);
-
-        index++;
+        ArrayList<String> values = getValueList(false, TokenType.STRING_LITERAL, TokenType.TRUE,
+                TokenType.FALSE, TokenType.FLOAT_LITERAL, TokenType.INTEGER_LITERAL, TokenType.NULL);
         expectTerminalTokens();
         return new InsertCommand(tableName, values);
     }
@@ -151,7 +138,10 @@ public class Parser {
         ConditionNode condition = null;
 
         if (tokens.get(index).getType() == TokenType.WILDCARD) index++;
-        else attributes = getAttributeList();
+        else {
+            attributes = getValueList(true, TokenType.IDENTIFIER);
+            index--;
+        }
 
         expectTokenType(TokenType.FROM);
         index++;
@@ -232,17 +222,23 @@ public class Parser {
         return conditionParser.parseCondition(conditionTokens);
     }
 
-    private ArrayList<String> getAttributeList() throws Exception {
+    private ArrayList<String> getValueList(boolean select, TokenType... expect) throws Exception {
 
-        ArrayList<String> attributeList = new ArrayList<>();
+        ArrayList<String> values = new ArrayList<>();
+        boolean insideList = true;
 
-        do {
-            expectTokenType(TokenType.IDENTIFIER);
-            attributeList.add(tokens.get(index++).toString());
+        while (insideList) {
+            expectTokenType(expect);
+            values.add(tokens.get(index++).toString());
+
+            if (tokens.get(index++).getType() != TokenType.COMMA) {
+                index--;
+                if (!select) expectTokenType(TokenType.CLOSE_BRACKET);
+                insideList = false;
+            }
         }
-        while (tokens.get(index).getType() != TokenType.FROM);
-
-        return attributeList;
+        index++;
+        return values;
     }
 
     private void expectTokenType(TokenType... types) throws Exception {
@@ -250,6 +246,10 @@ public class Parser {
         for (TokenType type : types) {
             if (tokens.get(index).getType() == type) return;
         }
+        System.out.println("Expected: " + Arrays.toString(types));
+        System.out.println("Actual: " + tokens.get(index).getType());
+        System.out.println(tokens);
+        System.out.println(index);
         throw new Exception();
     }
 

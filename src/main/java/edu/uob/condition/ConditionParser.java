@@ -9,7 +9,6 @@ public class ConditionParser {
 
     public ConditionNode parseCondition(ArrayList<Token> tokens) throws Exception {
         removeSemicolon(tokens);
-        // TODO: Check that no ANDs and ORs are inside the same brackets
         return buildConditionTree(tokens);
     }
 

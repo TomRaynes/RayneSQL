@@ -1,7 +1,6 @@
 package edu.uob;
 
-import edu.uob.condition.ConditionNode;
-import edu.uob.condition.ConditionParser;
+import edu.uob.command.Command;
 import edu.uob.token.Token;
 import edu.uob.token.Tokeniser;
 
@@ -25,11 +24,10 @@ public class DBServer {
     public static void main(String[] args) throws Exception { // throws IOException
         DBServer server = new DBServer();
 
-        Tokeniser tokeniser = new Tokeniser("((pass == FALSE) AND (mark > 35)) OR name == 'tom' OR name == 'james';");
+        Tokeniser tokeniser = new Tokeniser("CREATE TABLE salaries;");
         ArrayList<Token> tokens = tokeniser.getAllTokens();
-        ConditionParser parser = new ConditionParser();
-        ConditionNode node = parser.parseCondition(tokens);
-        node.printTree();
+        Parser parser = new Parser(tokens);
+        Command command = parser.parseQuery();
         //System.out.println(tokens);
 
 

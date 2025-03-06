@@ -11,4 +11,8 @@ public class DeleteCommand extends Command {
         this.tableName = tableName;
         this.condition = condition;
     }
+
+    public String getClassAttributes() {
+        return tableName + ", " + ConditionNode.getTreeAsString(condition);
+    }
 }

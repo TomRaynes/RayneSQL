@@ -17,4 +17,11 @@ public class UpdateCommand extends Command {
         this.nameValuePairs = nameValuePairs;
         this.condition = condition;
     }
+
+    public String getClassAttributes() {
+
+        String nameValList = "";
+        for (NameValuePair pair : nameValuePairs) nameValList += ", " + pair.toString();
+        return tableName + nameValList + ", " + ConditionNode.getTreeAsString(condition);
+    }
 }

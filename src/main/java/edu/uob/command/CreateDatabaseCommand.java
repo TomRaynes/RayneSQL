@@ -7,4 +7,8 @@ public class CreateDatabaseCommand extends Command {
     public CreateDatabaseCommand(String databaseName) {
         this.databaseName = databaseName;
     }
+
+    public String getClassAttributes() {
+        return databaseName;
+    }
 }

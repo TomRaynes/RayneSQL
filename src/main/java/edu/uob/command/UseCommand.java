@@ -7,4 +7,8 @@ public class UseCommand extends Command {
     public UseCommand(String databaseName) {
         this.databaseName = databaseName;
     }
+
+    public String getClassAttributes() {
+        return databaseName;
+    }
 }

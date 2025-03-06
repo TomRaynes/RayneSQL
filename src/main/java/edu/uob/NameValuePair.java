@@ -11,4 +11,8 @@ public class NameValuePair {
         this.attribute = attribute;
         this.value = value;
     }
+
+    public String toString() {
+        return attribute + "=" + value.toString();
+    }
 }

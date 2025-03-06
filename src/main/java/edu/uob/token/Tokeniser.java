@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Tokeniser {
 
     String query;
-    String[] specialCharacters = {"(",")",",",";"};
+    String[] specialCharacters = {"(", ")", ",", ";", ">", ">=", "==", "<=", "<"};
     ArrayList<Token> tokens = new ArrayList<>();
     private static final char END_OF_TRANSMISSION = 4;
 
@@ -37,7 +37,8 @@ public class Tokeniser {
                 for (String token : nextBatchOfTokens) {
                     try {
                         tokens.add(new Token(token));
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -59,6 +60,8 @@ public class Tokeniser {
         for(int i=0; i<specialCharacters.length; i++) {
             input = input.replace(specialCharacters[i], " " + specialCharacters[i] + " ");
         }
+        input = input.replaceAll("(?<!=)=(?!=)", " = ");
+
         // Remove any double spaces (the previous padding activity might have introduced some of these)
         while (input.contains("  ")) input = input.replace("  ", " "); // Replace two spaces by one
         // Remove any whitespace from the beginning and the end that might have been introduced

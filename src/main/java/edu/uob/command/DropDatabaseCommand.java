@@ -7,4 +7,8 @@ public class DropDatabaseCommand extends Command {
     public DropDatabaseCommand(String databaseName) {
         this.databaseName = databaseName;
     }
+
+    public String getClassAttributes() {
+        return databaseName;
+    }
 }

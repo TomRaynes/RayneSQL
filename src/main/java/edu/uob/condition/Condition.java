@@ -18,5 +18,7 @@ public class Condition extends ConditionNode {
         System.out.println(attribute + comparator.toString() + value.toString());
     }
 
-
+    public String toString() {
+        return attribute + comparator.toString() + value.toString();
+    }
 }
