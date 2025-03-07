@@ -1,6 +1,7 @@
 package edu.uob;
 
 import edu.uob.command.Command;
+import edu.uob.database.Database;
 import edu.uob.token.Token;
 import edu.uob.token.Tokeniser;
 
@@ -19,22 +20,11 @@ import java.util.ArrayList;
 public class DBServer {
 
     private static final char END_OF_TRANSMISSION = 4;
-    private String storageFolderPath;
+    private final String storageFolderPath;
+    private Database activeDatabase = null;
 
-    public static void main(String[] args) throws Exception { // throws IOException
+    public static void main(String[] args) throws IOException {
         DBServer server = new DBServer();
-
-        Tokeniser tokeniser = new Tokeniser("CREATE TABLE salaries;");
-        ArrayList<Token> tokens = tokeniser.getAllTokens();
-        Parser parser = new Parser(tokens);
-        Command command = parser.parseQuery();
-        //System.out.println(tokens);
-
-
-
-
-        //server.handleCommand("  INSERT  INTO  people   VALUES(  'Simon Lock'  ,35, 'simon@bristol.ac.uk' , 1.8  ) ; ");
-        //server.handleCommand("SELECT * FROM people WHERE Name == 'Steve';");
         server.blockingListenOn(8888);
     }
 
@@ -57,12 +47,32 @@ public class DBServer {
     *
     * <p>This method handles all incoming DB commands and carries out the required actions.
     */
-    public String handleCommand(String command) {
+    public String handleCommand(String query) {
         // TODO implement your server logic here
-        Tokeniser tokeniser = new Tokeniser(command);
+        Tokeniser tokeniser = new Tokeniser(query);
         ArrayList<Token> tokens = tokeniser.getAllTokens();
-        System.out.println(tokens);
-        return "";
+        Parser parser = new Parser(tokens);
+        Command command;
+
+        try {
+            command = parser.parseQuery();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return command.execute(this);
+    }
+
+    public Database getActiveDatabase() {
+        return activeDatabase;
+    }
+
+    public void setActiveDatabase(Database database) {
+        activeDatabase = database;
+    }
+
+    public String getStorageFolderPath() {
+        return storageFolderPath;
     }
 
     //  === Methods below handle networking aspects of the project - you will not need to change these ! ===

@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DBTable {
+public class Table {
     String storageFolderPath;
     String tableName;
     List<String> colNames;
     List<TableRow> tableRows;
 
-    public DBTable(String storageFolderPath, String tableName) {
+    public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;
         this.tableName = tableName;
         this.tableRows = new ArrayList<>();
     }
 
-    public void loadTable() throws IOException {
-        File table = new File(storageFolderPath + File.separator + tableName + ".tab");
+    public void loadTableData() throws IOException {
+        File table = new File(storageFolderPath + File.separator + tableName);
         if (!table.exists()) return;
 
         FileReader reader = new FileReader(table);
