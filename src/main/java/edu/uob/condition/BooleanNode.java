@@ -10,6 +10,10 @@ public class BooleanNode extends ConditionNode {
         this.type = type;
     }
 
+    public TokenType getType() {
+        return type;
+    }
+
     public void setLeftChild(ConditionNode leftChild) {
         this.leftChild = leftChild;
     }

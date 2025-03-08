@@ -11,6 +11,10 @@ public class ColumnEntry {
         this.entry = entry;
     }
 
+    public String getValue() {
+        return entry;
+    }
+
     public String toString() {
         return entry;
     }

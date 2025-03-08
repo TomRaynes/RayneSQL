@@ -14,6 +14,7 @@ public final class ConditionParser {
 
     private static void removeSemicolon(ArrayList<Token> tokens) throws Exception {
 
+        // last token == EOT, therefore second last should be semicolon
         int semicolonIndex = tokens.size()-2;
 
         if (tokens.get(semicolonIndex).getType() == TokenType.SEMICOLON) {

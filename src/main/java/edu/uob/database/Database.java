@@ -34,6 +34,7 @@ public class Database {
 
         if (getTable(tableName) != null) throw new Exception();
         Table table = new Table(getDatabasePath(), tableName);
+        table.initialiseIDs();
         if (attributes != null) table.setAttributes(attributes);
         TableNamePair tableNamePair = new TableNamePair(tableName, table);
         tables.add(tableNamePair);

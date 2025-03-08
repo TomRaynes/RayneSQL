@@ -1,4 +1,9 @@
 package edu.uob.database;
+import edu.uob.condition.BooleanNode;
+import edu.uob.condition.Condition;
+import edu.uob.condition.ConditionNode;
+import edu.uob.token.TokenType;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,6 +17,7 @@ public class Table {
     String tableName;
     List<String> attributes;
     List<TableRow> tableRows;
+    int nextID;
 
     public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;
@@ -24,6 +30,14 @@ public class Table {
         this.attributes.add(0, "id");
     }
 
+    public void initialiseIDs() {
+        nextID = 1;
+    }
+
+    public String getNextID() {
+        return Integer.toString(nextID++);
+    }
+
     public void addAttribute(String attribute) throws Exception {
         loadTableData();
         if (getAttributeIndex(attribute) >= 0) throw new Exception();
@@ -32,6 +46,7 @@ public class Table {
         for (TableRow row : tableRows) {
             row.addColumnEntry("null");
         }
+        saveTable();
     }
 
     public void removeAttribute(String attribute) throws Exception {
@@ -46,14 +61,29 @@ public class Table {
         for (TableRow row : tableRows) {
             row.removeColumnEntry(attributeIndex);
         }
+        saveTable();
     }
 
-    private int getAttributeIndex(String attribute) {
+    public int getAttributeIndex(String attribute) {
 
         for (int i=0; i<attributes.size(); i++) {
             if (Objects.equals(attributes.get(i), attribute)) return i;
         }
         return -1;
+    }
+
+    public ArrayList<Integer> getAttributeIndexes(ArrayList<String> attributeList)
+                                                                    throws Exception {
+
+        ArrayList<Integer> indexes = new ArrayList<>();
+
+        for (String attribute : attributeList) {
+            int index = getAttributeIndex(attribute);
+
+            if (index < 0) throw new Exception();
+            else indexes.add(index);
+        }
+        return indexes;
     }
 
     public void deleteTable() throws IOException {
@@ -71,6 +101,8 @@ public class Table {
         FileReader reader = new FileReader(table);
         BufferedReader buffReader = new BufferedReader(reader);
         String line = buffReader.readLine();
+        nextID = Integer.parseInt(line);
+        line = buffReader.readLine();
         attributes = getTableRow(line);
 
         while ((line = buffReader.readLine()) != null) {
@@ -96,6 +128,8 @@ public class Table {
 
         FileWriter writer = new FileWriter(table);
         BufferedWriter buffWriter = new BufferedWriter(writer);
+        buffWriter.write(Integer.toString(nextID));
+        buffWriter.newLine();
 
         for (String str : attributes) {
             buffWriter.write(str + "\t");
@@ -109,7 +143,42 @@ public class Table {
         buffWriter.close();
     }
 
-    public void addRow(String[] rowData) {
-        tableRows.add(new TableRow(Arrays.asList(rowData)));
+    public ArrayList<TableRow> getRowsFromCondition(ConditionNode node) throws Exception {
+
+        ArrayList<TableRow> rows = new ArrayList<>();
+
+        for (TableRow row : tableRows) {
+            if (conditionSatisfied(row, node)) rows.add(row);
+        }
+        return rows;
+    }
+
+    private boolean conditionSatisfied(TableRow row, ConditionNode node) throws Exception {
+
+        if (node instanceof Condition condition) {
+
+            int attributeIndex = getAttributeIndex(condition.getAttribute());
+            if (attributeIndex < 0) throw new Exception(); // doesnt exist
+            if (attributeIndex == 0) throw new Exception(); // id
+            ColumnEntry actualValue = row.getEntryFromIndex(attributeIndex);
+            return condition.assessCondition(actualValue);
+        }
+
+        boolean leftCondition = conditionSatisfied(row, node.getLeftChild());
+        boolean rightCondition = conditionSatisfied(row, node.getRightChild());
+        TokenType booleanType = ((BooleanNode) node).getType();
+
+        if (booleanType == TokenType.AND) {
+            return leftCondition && rightCondition;
+        }
+        return leftCondition || rightCondition;
+    }
+
+    public void addRow(ArrayList<String> rowData) throws Exception {
+
+        loadTableData();
+        rowData.add(0, getNextID());
+        tableRows.add(new TableRow(rowData));
+        saveTable();
     }
 }

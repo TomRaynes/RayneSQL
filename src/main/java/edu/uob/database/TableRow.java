@@ -23,6 +23,10 @@ public class TableRow {
         data.remove(index);
     }
 
+    public ColumnEntry getEntryFromIndex(int index) {
+        return data.get(index);
+    }
+
     public String toString() {
         StringBuilder str = new StringBuilder();
 

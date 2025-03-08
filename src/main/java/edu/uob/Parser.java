@@ -245,6 +245,7 @@ public class Parser {
         for (TokenType type : types) {
             if (tokens.get(index).getType() == type) return;
         }
+        // TODO: remove print statements
         System.out.println("Expected: " + Arrays.toString(types));
         System.out.println("Actual: " + tokens.get(index).getType());
         System.out.println(tokens);
