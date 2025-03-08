@@ -15,6 +15,14 @@ public class TableRow {
         }
     }
 
+    public void addColumnEntry(String entry) {
+        data.add(new ColumnEntry(entry));
+    }
+
+    public void removeColumnEntry(int index) {
+        data.remove(index);
+    }
+
     public String toString() {
         StringBuilder str = new StringBuilder();
 

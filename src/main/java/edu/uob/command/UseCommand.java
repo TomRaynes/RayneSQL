@@ -11,17 +11,12 @@ public class UseCommand extends Command {
         this.databaseName = databaseName;
     }
 
-    public String execute(DBServer server) {
+    public String execute(DBServer server) throws Exception
+    {
         Database database = new Database(server.getStorageFolderPath(), databaseName);
-
-        try {
-            database.loadTables();
-        }
-        catch (Exception e) {
-            return "[ERROR]";
-        }
+        database.loadDatabase();
         server.setActiveDatabase(database);
-        return "[OK]";
+        return null;
     }
 
     public String getClassAttributes() {

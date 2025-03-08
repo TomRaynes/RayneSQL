@@ -1,5 +1,8 @@
 package edu.uob.command;
 
+import edu.uob.DBServer;
+import edu.uob.database.Database;
+
 import java.util.ArrayList;
 
 public class CreateTableCommand extends Command {
@@ -10,6 +13,13 @@ public class CreateTableCommand extends Command {
     public CreateTableCommand(String tableName, ArrayList<String> attributes) {
         this.tableName = tableName;
         this.attributes = attributes;
+    }
+
+    public String execute(DBServer server) throws Exception {
+        Database database = server.getActiveDatabase();
+        if (database == null) throw new Exception();
+        database.addTable(tableName, attributes);
+        return null;
     }
 
     public String getClassAttributes() {

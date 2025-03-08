@@ -53,14 +53,16 @@ public class DBServer {
         ArrayList<Token> tokens = tokeniser.getAllTokens();
         Parser parser = new Parser(tokens);
         Command command;
+        String tableData;
 
         try {
             command = parser.parseQuery();
+            tableData = command.execute(this);
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            return "[ERROR]" + e;
         }
-        return command.execute(this);
+        return "[OK]" + tableData;
     }
 
     public Database getActiveDatabase() {
