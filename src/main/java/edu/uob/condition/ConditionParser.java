@@ -1,5 +1,6 @@
 package edu.uob.condition;
 
+import edu.uob.DBException;
 import edu.uob.token.Token;
 import edu.uob.token.TokenType;
 
@@ -16,17 +17,16 @@ public final class ConditionParser {
 
         // last token == EOT, therefore second last should be semicolon
         int semicolonIndex = tokens.size()-2;
+        TokenType type = tokens.get(semicolonIndex).getType();
 
-        if (tokens.get(semicolonIndex).getType() == TokenType.SEMICOLON) {
-            tokens.remove(semicolonIndex);
-        }
-        else throw new Exception();
+        if (type == TokenType.SEMICOLON) tokens.remove(semicolonIndex);
+        else throw new DBException.UnexpectedTokenException(type, TokenType.SEMICOLON);
     }
 
     private static ConditionNode buildConditionTree(ArrayList<Token> tokens) throws Exception {
 
         while (removeOuterBrackets(tokens));
-        BooleanNode node = findBooleanTokens(tokens);
+        LogicalNode node = findLogicalTokens(tokens);
         if (node != null) return node;
         return createCondition(tokens);
     }
@@ -48,10 +48,10 @@ public final class ConditionParser {
         return new Condition(attribute, comparator, value);
     }
 
-    private static BooleanNode findBooleanTokens(ArrayList<Token> tokens) throws Exception {
+    private static LogicalNode findLogicalTokens(ArrayList<Token> tokens) throws Exception {
 
         int nestingLevel = 0;
-        Token booleanToken = null;
+        Token logicalToken = null;
 
         for (int index=0; index<tokens.size(); index++) {
             TokenType type = tokens.get(index).getType();
@@ -60,25 +60,27 @@ public final class ConditionParser {
             else if (type == TokenType.CLOSE_BRACKET) nestingLevel--;
             else if (nestingLevel == 0 && (type == TokenType.AND || type == TokenType.OR)) {
 
-                if (booleanToken == null) booleanToken = tokens.get(index);
-                else if (booleanToken.getType() != tokens.get(index).getType()) {
-                    throw new Exception();
+                if (logicalToken == null) logicalToken = tokens.get(index);
+                else if (logicalToken.getType() != tokens.get(index).getType()) {
+                    throw new DBException.ConflictingLogicalOperatorException();
                 }
             }
         }
-        return booleanToken == null ? null : createBooleanNode(tokens, booleanToken);
+        return logicalToken == null ? null : createLogicalNode(tokens, logicalToken);
     }
 
-    private static BooleanNode createBooleanNode(ArrayList<Token> tokens, Token operator) throws Exception {
+    private static LogicalNode createLogicalNode(ArrayList<Token> tokens, Token operator) throws Exception {
 
         int index = tokens.indexOf(operator);
-        if (tokens.get(index+1).getType() == TokenType.EOT) throw new Exception();
+        if (tokens.get(index+1).getType() == TokenType.EOT) {
+            throw new DBException.MissingSubConditionException(operator.getType());
+        }
 
         ArrayList<Token> leftChild = new ArrayList<>(tokens.subList(0, index));
         ArrayList<Token> rightChild = new ArrayList<>(tokens.subList(index+1, tokens.size()));
         leftChild.add(new Token("\u0004"));
 
-        BooleanNode node = new BooleanNode(operator.getType());
+        LogicalNode node = new LogicalNode(operator.getType());
         node.setLeftChild(buildConditionTree(leftChild));
         node.setRightChild(buildConditionTree(rightChild));
         return node;
@@ -109,7 +111,9 @@ public final class ConditionParser {
                 tokens.remove(--index);
                 return true;
             }
-            else if (nestingLevel != 0) throw new Exception();
+            else if (nestingLevel != 0) {
+                throw new DBException.UnpairedBracketInConditionException();
+            }
         }
         return false;
     }
@@ -120,6 +124,6 @@ public final class ConditionParser {
         for (TokenType type : types) {
             if (tokens.get(index).getType() == type) return;
         }
-        throw new Exception();
+        throw new DBException.UnexpectedTokenException(tokens.get(index).getType(), types);
     }
 }

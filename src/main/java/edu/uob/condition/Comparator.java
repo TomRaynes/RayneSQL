@@ -6,7 +6,7 @@ public class Comparator {
     private final ComparatorType type;
     private final String str;
 
-    public Comparator(Token token) throws Exception {
+    public Comparator(Token token) {
         this.type = characteriseComparator(token);
         this.str = token.toString();
     }
@@ -19,7 +19,7 @@ public class Comparator {
         return type;
     }
 
-    private static ComparatorType characteriseComparator(Token token) throws Exception {
+    private static ComparatorType characteriseComparator(Token token) {
 
         return switch (token.toString()) {
             case ">" -> ComparatorType.GREATER_THAN;
@@ -27,7 +27,8 @@ public class Comparator {
             case "==" -> ComparatorType.EQUAL;
             case "<=" -> ComparatorType.LESS_THAN_OR_EQUAL;
             case "<" -> ComparatorType.LESS_THAN;
-            default -> throw new Exception();
+            case "!=" -> ComparatorType.NOT_EQUAL;
+            default -> ComparatorType.LIKE;
         };
     }
 }

@@ -18,7 +18,7 @@ public class Condition extends ConditionNode {
         this.value = value;
     }
 
-    public boolean assessCondition(ColumnEntry actualValue) throws Exception {
+    public boolean assessCondition(ColumnEntry actualValue) {
 
         TokenType type = value.getType();
 
@@ -29,14 +29,18 @@ public class Condition extends ConditionNode {
             try {
                 actualValueDouble = Double.parseDouble(actualValue.toString());
             } catch (NumberFormatException e) {
-                throw new Exception(); // Condition and actual are incompatible
+                return false; // Condition and actual are incompatible
             }
             return assessNumberCondition(conditionalValue, actualValueDouble);
         }
-        // Remaining values cant be assessed on basis of inequality
-        if (comparator.getType() != ComparatorType.EQUAL) throw new Exception();
-
-        return Objects.equals(actualValue.toString(), value.toString());
+        // Remaining values may only be assessed on basis of equality or sub-string
+        if (comparator.getType() == ComparatorType.EQUAL) {
+            return Objects.equals(actualValue.toString(), value.toString());
+        }
+        if (comparator.getType() == ComparatorType.LIKE) {
+            return containsSubString(value.toString(), actualValue.toString());
+        }
+        return false;
     }
 
     private boolean assessNumberCondition(double conditionalValue, double actualValue) {
@@ -47,7 +51,14 @@ public class Condition extends ConditionNode {
             case EQUAL -> actualValue == conditionalValue;
             case LESS_THAN_OR_EQUAL -> actualValue <= conditionalValue;
             case LESS_THAN -> actualValue < conditionalValue;
+            case NOT_EQUAL -> actualValue != conditionalValue;
+            case LIKE -> containsSubString(Double.toString(conditionalValue),
+                                           Double.toString(actualValue));
         };
+    }
+
+    private boolean containsSubString(String subString, String string) {
+        return string.contains(subString);
     }
 
     public String getAttribute() {

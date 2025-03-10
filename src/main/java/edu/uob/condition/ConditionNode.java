@@ -10,7 +10,7 @@ public abstract class ConditionNode {
 
     public void printTree() {
 
-        if (this instanceof BooleanNode) {
+        if (this instanceof LogicalNode) {
             this.printNode();
             this.leftChild.printTree();
             this.rightChild.printTree();

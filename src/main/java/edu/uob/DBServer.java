@@ -49,20 +49,20 @@ public class DBServer {
     */
     public String handleCommand(String query) {
         // TODO implement your server logic here
-        Tokeniser tokeniser = new Tokeniser(query);
-        ArrayList<Token> tokens = tokeniser.getAllTokens();
-        Parser parser = new Parser(tokens);
-        Command command;
         String tableData;
 
         try {
+            Tokeniser tokeniser = new Tokeniser(query);
+            ArrayList<Token> tokens = tokeniser.getAllTokens();
+            Parser parser = new Parser(tokens);
+            Command command;
             command = parser.parseQuery();
             tableData = command.execute(this);
         }
         catch (Exception e) {
-            return "[ERROR]" + e;
+            return "[ERROR]\n" + e.getMessage();
         }
-        return "[OK]" + tableData;
+        return "[OK]\n" + tableData;
     }
 
     public Database getActiveDatabase() {

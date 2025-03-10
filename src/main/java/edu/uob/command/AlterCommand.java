@@ -20,17 +20,14 @@ public class AlterCommand extends Command {
 
     public String execute(DBServer server) throws Exception {
 
-        Database database = server.getActiveDatabase();
-        if (database == null) throw new Exception();
-        Table table = database.getTable(tableName);
-        if (table == null) throw new Exception();
+        Table table = getTable(server, tableName);
 
         if (Objects.equals(alterationType, "ADD")) {
             table.addAttribute(attribute);
         }
         else table.removeAttribute(attribute);
 
-        return null;
+        return "";
     }
 
     public String getClassAttributes() {

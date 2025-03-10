@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Tokeniser {
 
     String query;
-    String[] specialCharacters = {"(", ")", ",", ";", ">", ">=", "==", "<=", "<"};
+    String[] specialCharacters = {"(", ")", ",", ";", ">=", "==", "<=", "!="};
     ArrayList<Token> tokens = new ArrayList<>();
     private static final char END_OF_TRANSMISSION = 4;
 
@@ -13,20 +13,13 @@ public class Tokeniser {
 
     }
 
-    public ArrayList<Token> getAllTokens() {
+    public ArrayList<Token> getAllTokens() throws Exception {
         // Split the query on single quotes (to separate out query text from string literals)
         String[] fragments = query.split("'");
         for (int i=0; i<fragments.length; i++) {
             // Every other fragment is a string literal, so just add it straight to "result" token list
-            if (i%2 != 0) {
+            if (i%2 != 0) tokens.add(new Token("'" + fragments[i] + "'"));
 
-                try {
-                    tokens.add(new Token("'" + fragments[i] + "'"));
-                }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
                 // If it's not a string literal, it must be query text (which needs further processing)
             else {
                 // Tokenise the fragment into an array of strings - this is the "clever" bit !
@@ -35,22 +28,13 @@ public class Tokeniser {
                 //tokens.addAll(Arrays.asList(nextBatchOfTokens));
 
                 for (String token : nextBatchOfTokens) {
-                    try {
-                        tokens.add(new Token(token));
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    tokens.add(new Token(token));
                 }
             }
         }
         // Finally, loop through the result array list, printing out each token a line at a time
 
-        try {
-            tokens.add(new Token("\u0004"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        tokens.add(new Token("\u0004"));
         return tokens;
     }
 
@@ -60,7 +44,9 @@ public class Tokeniser {
         for(int i=0; i<specialCharacters.length; i++) {
             input = input.replace(specialCharacters[i], " " + specialCharacters[i] + " ");
         }
-        input = input.replaceAll("(?<!=)=(?!=)", " = ");
+        input = input.replaceAll("(?<![=!<>])=(?!=)", " = ");
+        input = input.replaceAll(">(?!=)", " > ");
+        input = input.replaceAll("<(?!=)", " < ");
 
         // Remove any double spaces (the previous padding activity might have introduced some of these)
         while (input.contains("  ")) input = input.replace("  ", " "); // Replace two spaces by one

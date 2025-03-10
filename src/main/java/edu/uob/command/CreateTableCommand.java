@@ -1,5 +1,6 @@
 package edu.uob.command;
 
+import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
 
@@ -17,7 +18,7 @@ public class CreateTableCommand extends Command {
 
     public String execute(DBServer server) throws Exception {
         Database database = server.getActiveDatabase();
-        if (database == null) throw new Exception();
+        if (database == null) throw new DBException.NoActiveDatabaseException();
         database.addTable(tableName, attributes);
         return null;
     }

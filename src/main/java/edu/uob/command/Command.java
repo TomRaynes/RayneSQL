@@ -1,23 +1,26 @@
 package edu.uob.command;
 
+import edu.uob.DBException;
 import edu.uob.DBServer;
-import edu.uob.condition.BooleanNode;
-import edu.uob.condition.Comparator;
-import edu.uob.condition.Condition;
-import edu.uob.condition.ConditionNode;
 import edu.uob.database.*;
-import edu.uob.token.Token;
-import edu.uob.token.TokenType;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 
 public abstract class Command {
 
     public abstract String execute(DBServer server) throws Exception;
     public abstract String getClassAttributes();
+
+    protected static Table getTable(DBServer server, String tableName) throws Exception {
+
+        Database database = server.getActiveDatabase();
+        if (database == null) throw new DBException.NoActiveDatabaseException();
+        Table table = database.getTable(tableName);
+        if (table == null) {
+            throw new DBException.TableDoesNotExistException(tableName, database.getDatabaseName());
+        }
+        return table;
+    }
 
     protected static ArrayList<ArrayList<String>> getSelectedData(ArrayList<String> attributes,
             ArrayList<TableRow> rows, ArrayList<Integer> attributeIndexes) {
@@ -50,9 +53,9 @@ public abstract class Command {
         return maxColWidths;
     }
 
-    protected static String getReturnString(ArrayList<ArrayList<String>> table,
-                                                 ArrayList<Integer> maxColWidths) {
+    protected static String getReturnString(ArrayList<ArrayList<String>> table) {
 
+        ArrayList<Integer> maxColWidths = getMaxColWidths(table);
         StringBuilder str = new StringBuilder();
 
         for (ArrayList<String> row : table) {

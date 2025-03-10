@@ -12,6 +12,14 @@ public class NameValuePair {
         this.value = value;
     }
 
+    public String getAttribute() {
+        return attribute;
+    }
+
+    public Token getValue() {
+        return value;
+    }
+
     public String toString() {
         return attribute + "=" + value.toString();
     }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableRow {
-    List<ColumnEntry> data;
+    ArrayList<ColumnEntry> data;
 
     public TableRow(List<String> rowData) {
 
@@ -15,12 +15,34 @@ public class TableRow {
         }
     }
 
+    public int getSize() {
+        return data.size();
+    }
+
     public void addColumnEntry(String entry) {
         data.add(new ColumnEntry(entry));
     }
 
     public void removeColumnEntry(int index) {
         data.remove(index);
+    }
+
+    public void setEntryFromIndex(int index, String value) {
+        data.get(index).setValue(value);
+    }
+
+    public TableRow mergeRow(TableRow row) {
+
+        ArrayList<String> mergedRow = toStringArray();
+        mergedRow.addAll(row.toStringArray());
+        return new TableRow(mergedRow);
+    }
+
+    public ArrayList<String> toStringArray() {
+
+        ArrayList<String> rowData = new ArrayList<>();
+        for (ColumnEntry entry : data) rowData.add(entry.getValue());
+        return rowData;
     }
 
     public ColumnEntry getEntryFromIndex(int index) {

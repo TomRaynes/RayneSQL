@@ -1,5 +1,8 @@
 package edu.uob.database;
-import edu.uob.condition.BooleanNode;
+
+import edu.uob.DBException;
+import edu.uob.NameValuePair;
+import edu.uob.condition.LogicalNode;
 import edu.uob.condition.Condition;
 import edu.uob.condition.ConditionNode;
 import edu.uob.token.TokenType;
@@ -15,19 +18,32 @@ import java.util.Objects;
 public class Table {
     String storageFolderPath;
     String tableName;
-    List<String> attributes;
-    List<TableRow> tableRows;
+    ArrayList<String> attributes;
+    ArrayList<TableRow> tableRows;
     int nextID;
 
     public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;
         this.tableName = tableName;
-        this.tableRows = new ArrayList<>();
+    }
+
+    public ArrayList<String> getAttributes() {
+        return attributes;
+    }
+
+    public ArrayList<String> getNonKeyAttributes(int keyIndex) {
+
+        ArrayList<String> nonKeyAttributes = new ArrayList<>();
+
+        for (int i=0; i<attributes.size(); i++) {
+
+            if (i != keyIndex) nonKeyAttributes.add(tableName + "." + attributes.get(i));
+        }
+        return nonKeyAttributes;
     }
 
     public void setAttributes(ArrayList<String> attributes) {
         this.attributes = attributes;
-        this.attributes.add(0, "id");
     }
 
     public void initialiseIDs() {
@@ -38,9 +54,16 @@ public class Table {
         return Integer.toString(nextID++);
     }
 
+    public ArrayList<TableRow> getTableRows() {
+        return tableRows;
+    }
+
     public void addAttribute(String attribute) throws Exception {
         loadTableData();
-        if (getAttributeIndex(attribute) >= 0) throw new Exception();
+        if (getAttributeIndex(attribute) >= 0) {
+            throw new DBException.AttributeAlreadyExistsException(attribute);
+        }
+        if (attributes == null) attributes = new ArrayList<>();
         attributes.add(attribute);
 
         for (TableRow row : tableRows) {
@@ -53,8 +76,8 @@ public class Table {
 
         loadTableData();
         int attributeIndex = getAttributeIndex(attribute);
-        if (attributeIndex < 0) throw new Exception(); // does not exist
-        if (attributeIndex == 0) throw new Exception(); // cant remove id
+        if (attributeIndex < 0) throw new DBException.AttributeDoesNotExistException(attribute);
+        if (attributeIndex == 0) throw new DBException.TryingToRemoveIdException();
 
         attributes.remove(attributeIndex);
 
@@ -66,6 +89,8 @@ public class Table {
 
     public int getAttributeIndex(String attribute) {
 
+        if (attributes == null) return -1;
+
         for (int i=0; i<attributes.size(); i++) {
             if (Objects.equals(attributes.get(i), attribute)) return i;
         }
@@ -74,77 +99,106 @@ public class Table {
 
     public ArrayList<Integer> getAttributeIndexes(ArrayList<String> attributeList)
                                                                     throws Exception {
-
         ArrayList<Integer> indexes = new ArrayList<>();
 
         for (String attribute : attributeList) {
             int index = getAttributeIndex(attribute);
 
-            if (index < 0) throw new Exception();
+            if (index < 0) throw new DBException.AttributeDoesNotExistException(attribute);
             else indexes.add(index);
         }
         return indexes;
     }
 
-    public void deleteTable() throws IOException {
-        Files.delete(Paths.get(getTablePath()).toAbsolutePath());
+    public void deleteTable() throws Exception {
+
+        try {
+            Files.delete(Paths.get(getTablePath()).toAbsolutePath());
+        }
+        catch (Exception e) {
+            throw new DBException.ErrorDeletingTableException(tableName);
+        }
     }
 
     private String getTablePath() {
         return storageFolderPath + File.separator + tableName;
     }
 
-    public void loadTableData() throws IOException {
-        File table = new File(storageFolderPath + File.separator + tableName);
-        if (!table.exists()) return;
+    public void loadTableData() throws Exception {
 
-        FileReader reader = new FileReader(table);
-        BufferedReader buffReader = new BufferedReader(reader);
-        String line = buffReader.readLine();
-        nextID = Integer.parseInt(line);
-        line = buffReader.readLine();
-        attributes = getTableRow(line);
+        try {
+            File table = new File(storageFolderPath + File.separator + tableName + ".tab");
+            if (!table.exists()) return;
 
-        while ((line = buffReader.readLine()) != null) {
-            List<String> rowData = getTableRow(line);
-            tableRows.add(new TableRow(rowData));
+            FileReader reader = new FileReader(table);
+            BufferedReader buffReader = new BufferedReader(reader);
+            String line = buffReader.readLine();
+            nextID = Integer.parseInt(line);
+            line = buffReader.readLine();
+
+            if (line == null) {
+                buffReader.close();
+                return;
+            }
+            attributes = getTableRow(line);
+            tableRows = new ArrayList<>();
+
+            while ((line = buffReader.readLine()) != null) {
+                List<String> rowData = getTableRow(line);
+                tableRows.add(new TableRow(rowData));
+            }
+            buffReader.close();
         }
-        buffReader.close();
+        catch (Exception e) {
+            throw new DBException.ErrorLoadingTableException(tableName);
+        }
     }
 
-    private List<String> getTableRow(String line) {
+    private ArrayList<String> getTableRow(String line) {
 
-        String[] columnNames = line.split("\t");
-        return Arrays.asList(columnNames);
+        String[] row = line.split("\t");
+        return new ArrayList<>(Arrays.asList(row));
     }
 
     public void saveTable() throws Exception {
 
-        File table = new File(storageFolderPath + File.separator + tableName + ".tab");
+        try {
+            File table = new File(storageFolderPath + File.separator + tableName + ".tab");
 
-        if (!table.exists()) {
-            if (!table.createNewFile()) throw new Exception();
-        }
+            if (!table.exists()) table.createNewFile();
 
-        FileWriter writer = new FileWriter(table);
-        BufferedWriter buffWriter = new BufferedWriter(writer);
-        buffWriter.write(Integer.toString(nextID));
-        buffWriter.newLine();
-
-        for (String str : attributes) {
-            buffWriter.write(str + "\t");
-        }
-        buffWriter.newLine();
-
-        for (TableRow row : tableRows) {
-            buffWriter.write(row.toString());
+            FileWriter writer = new FileWriter(table);
+            BufferedWriter buffWriter = new BufferedWriter(writer);
+            buffWriter.write(Integer.toString(nextID));
             buffWriter.newLine();
+
+            if (attributes == null) {
+                buffWriter.close();
+                return;
+            }
+            for (String str : attributes) {
+                buffWriter.write(str + "\t");
+            }
+            if (tableRows == null) {
+                buffWriter.close();
+                return;
+            }
+            buffWriter.newLine();
+
+            for (TableRow row : tableRows) {
+                buffWriter.write(row.toString());
+                buffWriter.newLine();
+            }
+            buffWriter.close();
         }
-        buffWriter.close();
+        catch (Exception e) {
+            throw new DBException.ErrorSavingTableException(tableName);
+        }
     }
 
     public ArrayList<TableRow> getRowsFromCondition(ConditionNode node) throws Exception {
 
+        loadTableData();
         ArrayList<TableRow> rows = new ArrayList<>();
 
         for (TableRow row : tableRows) {
@@ -153,20 +207,35 @@ public class Table {
         return rows;
     }
 
+    public void updateEntryFromNameValuePair(NameValuePair pair, TableRow row) throws Exception {
+
+        int index = getAttributeIndex(pair.getAttribute());
+
+        if (index < 0) {
+            throw new DBException.AttributeDoesNotExistException(pair.getAttribute());
+        }
+        if (index == 0) {
+            throw new DBException.TryingToChangeIdException();
+        }
+        row.setEntryFromIndex(index, pair.getValue().toString());
+    }
+
     private boolean conditionSatisfied(TableRow row, ConditionNode node) throws Exception {
 
         if (node instanceof Condition condition) {
 
             int attributeIndex = getAttributeIndex(condition.getAttribute());
-            if (attributeIndex < 0) throw new Exception(); // doesnt exist
-            if (attributeIndex == 0) throw new Exception(); // id
+
+            if (attributeIndex < 0) {
+                throw new DBException.AttributeDoesNotExistException(condition.getAttribute());
+            }
             ColumnEntry actualValue = row.getEntryFromIndex(attributeIndex);
             return condition.assessCondition(actualValue);
         }
 
         boolean leftCondition = conditionSatisfied(row, node.getLeftChild());
         boolean rightCondition = conditionSatisfied(row, node.getRightChild());
-        TokenType booleanType = ((BooleanNode) node).getType();
+        TokenType booleanType = ((LogicalNode) node).getType();
 
         if (booleanType == TokenType.AND) {
             return leftCondition && rightCondition;
@@ -177,8 +246,19 @@ public class Table {
     public void addRow(ArrayList<String> rowData) throws Exception {
 
         loadTableData();
+        if (attributes == null) {
+            throw new DBException.AddingRowBeforeAttributesException(tableName);
+        }
+        if (attributes.size()-1 != rowData.size()) {
+            throw new DBException.RowAttributesMismatchException(tableName, rowData.size(),
+                                                                 attributes.size()-1);
+        }
         rowData.add(0, getNextID());
         tableRows.add(new TableRow(rowData));
         saveTable();
+    }
+
+    public void removeRow(TableRow row) {
+        tableRows.remove(row);
     }
 }

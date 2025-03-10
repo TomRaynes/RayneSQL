@@ -2,11 +2,11 @@ package edu.uob.condition;
 
 import edu.uob.token.TokenType;
 
-public class BooleanNode extends ConditionNode {
+public class LogicalNode extends ConditionNode {
     TokenType type;
 
 
-    public BooleanNode(TokenType type) {
+    public LogicalNode(TokenType type) {
         this.type = type;
     }
 

@@ -1,6 +1,12 @@
 package edu.uob.command;
 
+import edu.uob.DBServer;
 import edu.uob.condition.ConditionNode;
+import edu.uob.database.Database;
+import edu.uob.database.Table;
+import edu.uob.database.TableRow;
+
+import java.util.ArrayList;
 
 public class DeleteCommand extends Command {
 
@@ -10,6 +16,17 @@ public class DeleteCommand extends Command {
     public DeleteCommand(String tableName, ConditionNode condition) {
         this.tableName = tableName;
         this.condition = condition;
+    }
+
+    public String execute(DBServer server) throws Exception {
+
+        Table table = getTable(server, tableName);
+        ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
+
+        for (TableRow row : rows) {
+            table.removeRow(row);
+        }
+        return null;
     }
 
     public String getClassAttributes() {

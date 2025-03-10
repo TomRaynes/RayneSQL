@@ -22,19 +22,18 @@ public class SelectCommand extends Command {
 
     public String execute(DBServer server) throws Exception {
 
-        Database database = server.getActiveDatabase();
-        if (database == null) throw new Exception();
-        Table table = database.getTable(tableName);
-        if (table == null) throw new Exception();
+        Table table = getTable(server, tableName);
+        table.loadTableData();
+        ArrayList<TableRow> rows;
 
-        ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
+        if (attributes == null) attributes = table.getAttributes();
+        if (condition == null) rows = table.getTableRows();
+        else rows = table.getRowsFromCondition(condition);
+
         ArrayList<Integer> attributeIndexes = table.getAttributeIndexes(attributes);
-
         ArrayList<ArrayList<String>> selectedData = getSelectedData(attributes,
                                                             rows, attributeIndexes);
-
-        ArrayList<Integer> maxColWidths = getMaxColWidths(selectedData);
-        return getReturnString(selectedData, maxColWidths);
+        return getReturnString(selectedData);
     }
 
     public String getClassAttributes() {

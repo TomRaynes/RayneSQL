@@ -1,5 +1,7 @@
 package edu.uob.token;
 
+import edu.uob.DBException;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ public class Token {
     }
 
     public String toString() {
+        if (type == TokenType.IDENTIFIER) return token.replaceAll("'", "");
         return token;
     }
 
@@ -51,7 +54,7 @@ public class Token {
             case "," -> TokenType.COMMA;
             case ";" -> TokenType.SEMICOLON;
             case "=" -> TokenType.ASSIGNMENT_EQUALS;
-            case ">", ">=", "==", "<=", "<", "LIKE" -> TokenType.COMPARATOR;
+            case ">", ">=", "==", "<=", "<", "!=", "LIKE" -> TokenType.COMPARATOR;
             case "NULL" -> TokenType.NULL;
             case "\u0004" -> TokenType.EOT;
             default -> characteriseMisc(token);
@@ -64,7 +67,7 @@ public class Token {
         if (isFloatLiteral(token)) return TokenType.FLOAT_LITERAL;
         if (isStringLiteral(token)) return TokenType.STRING_LITERAL;
         if (isIdentifier(token)) return TokenType.IDENTIFIER;
-        else throw new Exception();
+        else throw new DBException.InvalidTokenException(token);
     }
 
     private static boolean isIntegerLiteral(String token) {

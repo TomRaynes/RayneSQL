@@ -1,5 +1,15 @@
 package edu.uob.command;
 
+import edu.uob.DBException;
+import edu.uob.DBServer;
+import edu.uob.database.Database;
+import edu.uob.database.Table;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class JoinCommand extends Command {
 
     String tableName1;
@@ -12,6 +22,34 @@ public class JoinCommand extends Command {
         this.tableName2 = tableName2;
         this.attribute1 = attribute1;
         this.attribute2 = attribute2;
+    }
+
+    public String execute(DBServer server) throws Exception {
+
+        Database database = server.getActiveDatabase();
+
+        if (database == null) {
+            throw new DBException.NoActiveDatabaseException();
+        }
+        ArrayList<ArrayList<String>> joinedTable;
+        joinedTable = database.hashJoinTables(this, database.getDatabaseName());
+        return getReturnString(joinedTable);
+    }
+
+    public String getTableName1() {
+        return tableName1;
+    }
+
+    public String getTableName2() {
+        return tableName2;
+    }
+
+    public String getAttribute1() {
+        return attribute1;
+    }
+
+    public String getAttribute2() {
+        return attribute2;
     }
 
     public String getClassAttributes() {

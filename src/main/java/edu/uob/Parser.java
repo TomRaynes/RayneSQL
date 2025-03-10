@@ -7,7 +7,6 @@ import edu.uob.token.Token;
 import edu.uob.token.TokenType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Parser {
 
@@ -21,8 +20,9 @@ public class Parser {
     public Command parseQuery() throws Exception {
 
         if (tokens.isEmpty()) return null;
+        TokenType type = tokens.get(index++).getType();
 
-        return switch (tokens.get(index++).getType()) {
+        return switch (type) {
             case USE -> parseUseQuery();
             case CREATE -> parseCreateQuery();
             case DROP -> parseDropQuery();
@@ -32,7 +32,9 @@ public class Parser {
             case UPDATE -> parseUpdateQuery();
             case DELETE -> parseDeleteQuery();
             case JOIN -> parseJoinQuery();
-            default -> throw new Exception();
+            default -> throw new DBException.UnexpectedTokenException(type, TokenType.USE,
+                    TokenType.CREATE, TokenType.DROP, TokenType.ALTER, TokenType.INSERT,
+                    TokenType.SELECT, TokenType.UPDATE, TokenType.DELETE, TokenType.JOIN);
         };
     }
 
@@ -46,11 +48,12 @@ public class Parser {
 
     private Command parseCreateQuery() throws Exception {
 
-        return switch (tokens.get(index++).getType()) {
-            case DATABASE -> parseCreateDatabaseQuery();
-            case TABLE -> parseCreateTableQuery();
-            default -> throw new Exception();
-        };
+        expectTokenType(TokenType.DATABASE, TokenType.TABLE);
+
+        if (tokens.get(index++).getType() == TokenType.DATABASE) {
+            return parseCreateDatabaseQuery();
+        }
+        else return parseCreateTableQuery();
     }
 
     private CreateDatabaseCommand parseCreateDatabaseQuery() throws Exception {
@@ -78,11 +81,12 @@ public class Parser {
 
     private Command parseDropQuery() throws Exception {
 
-        return switch (tokens.get(index++).getType()) {
-            case DATABASE -> parseDropDatabaseQuery();
-            case TABLE -> parseDropTableQuery();
-            default -> throw new Exception();
-        };
+        expectTokenType(TokenType.DATABASE, TokenType.TABLE);
+
+        if (tokens.get(index++).getType() == TokenType.DATABASE) {
+            return parseDropDatabaseQuery();
+        }
+        else return parseDropTableQuery();
     }
 
     private DropDatabaseCommand parseDropDatabaseQuery() throws Exception {
@@ -193,6 +197,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String attribute1 = tokens.get(index++).toString();
         expectTokenType(TokenType.AND);
+        index++;
         String attribute2 = tokens.get(index++).toString();
         expectTerminalTokens();
         return new JoinCommand(tableName1, tableName2, attribute1, attribute2);
@@ -245,12 +250,8 @@ public class Parser {
         for (TokenType type : types) {
             if (tokens.get(index).getType() == type) return;
         }
-        // TODO: remove print statements
-        System.out.println("Expected: " + Arrays.toString(types));
-        System.out.println("Actual: " + tokens.get(index).getType());
-        System.out.println(tokens);
-        System.out.println(index);
-        throw new Exception();
+        System.out.println("index = " + index);
+        throw new DBException.UnexpectedTokenException(tokens.get(index).getType(), types);
     }
 
     private void expectTerminalTokens() throws Exception {

@@ -19,10 +19,7 @@ public class InsertCommand extends Command {
 
     public String execute(DBServer server) throws Exception {
 
-        Database database = server.getActiveDatabase();
-        if (database == null) throw new Exception();
-        Table table = database.getTable(tableName);
-        if (table == null) throw new Exception();
+        Table table = getTable(server, tableName);
         table.addRow(values);
         return null;
     }

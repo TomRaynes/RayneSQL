@@ -95,6 +95,10 @@ public class ParserTests {
         testQuery("UPDATE marks SET age=35 WHERE name == 'Simon';",
                 UpdateCommand.class,
                 "marks, age=35, name=='Simon'");
+
+        testQuery("UPDATE marks SET age=35 WHERE name != 'Simon';",
+                UpdateCommand.class,
+                "marks, age=35, name!='Simon'");
     }
 
     @Test
@@ -107,5 +111,13 @@ public class ParserTests {
         testQuery("DELETE FROM marks WHERE name == 'Simon' OR (mark<20);",
                 DeleteCommand.class,
                 "marks, (name=='Simon') OR (mark<20)");
+    }
+
+    @Test
+    public void testParseJoinQuery() throws Exception {
+
+        testQuery("JOIN table1 AND table2 ON attribute1 AND attribute2;",
+                JoinCommand.class,
+                "table1, table2, attribute1, attribute2");
     }
 }
