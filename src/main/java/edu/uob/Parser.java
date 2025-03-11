@@ -250,8 +250,6 @@ public class Parser {
         for (TokenType type : types) {
             if (tokens.get(index).getType() == type) return;
         }
-        System.out.println("index = " + index);
-        System.out.println(tokens.get(index).toString());
         throw new DBException.UnexpectedTokenException(tokens.get(index).getType(), types);
     }
 

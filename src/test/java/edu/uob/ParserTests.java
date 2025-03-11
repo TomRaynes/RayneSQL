@@ -48,13 +48,13 @@ public class ParserTests {
     @Test
     public void testParseDropQuery() throws Exception {
 
-        testQuery("DROP DATABASE database;",
+        testQuery("DROP DATABASE data;",
                 DropDatabaseCommand.class,
-                "database");
+                "data");
 
-        testQuery("DROP TABLE table;",
+        testQuery("DROP TABLE tab;",
                 DropTableCommand.class,
-        "table");
+        "tab");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ParserTests {
 
         testQuery("INSERT INTO people VALUES ('john', 30, 'john@john.com');",
                 InsertCommand.class,
-                "people, 'john', 30, 'john@john.com'");
+                "people, john, 30, john@john.com");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ParserTests {
 
         testQuery("SELECT * FROM marks WHERE (pass==FALSE AND mark > 35) OR name == 'tom';",
                 SelectCommand.class,
-                "marks, *, ((pass==FALSE) AND (mark>35)) OR (name=='tom')");
+                "marks, *, ((pass==FALSE) AND (mark>35)) OR (name==tom)");
 
         testQuery("SELECT name, email FROM marks WHERE (pass==FALSE AND mark > 35);",
                 SelectCommand.class,
@@ -94,11 +94,11 @@ public class ParserTests {
 
         testQuery("UPDATE marks SET age=35 WHERE name == 'Simon';",
                 UpdateCommand.class,
-                "marks, age=35, name=='Simon'");
+                "marks, age=35, name==Simon");
 
         testQuery("UPDATE marks SET age=35 WHERE name != 'Simon';",
                 UpdateCommand.class,
-                "marks, age=35, name!='Simon'");
+                "marks, age=35, name!=Simon");
     }
 
     @Test
@@ -106,11 +106,11 @@ public class ParserTests {
 
         testQuery("DELETE FROM marks WHERE name == 'Simon';",
                 DeleteCommand.class,
-                "marks, name=='Simon'");
+                "marks, name==Simon");
 
         testQuery("DELETE FROM marks WHERE name == 'Simon' OR (mark<20);",
                 DeleteCommand.class,
-                "marks, (name=='Simon') OR (mark<20)");
+                "marks, (name==Simon) OR (mark<20)");
     }
 
     @Test
