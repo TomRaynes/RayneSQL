@@ -6,6 +6,7 @@ public class NameValuePair {
 
     String attribute;
     Token value;
+    int index;
 
     public NameValuePair(String attribute, Token value) {
         this.attribute = attribute;

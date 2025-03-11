@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Tokeniser {
 
     String query;
-    String[] specialCharacters = {"(", ")", ",", ";", ">=", "==", "<=", "!="};
+    String[] specialCharacters = {"(", ")", ",", ";", "*", ">=", "==", "<=", "!="};
     ArrayList<Token> tokens = new ArrayList<>();
     private static final char END_OF_TRANSMISSION = 4;
 

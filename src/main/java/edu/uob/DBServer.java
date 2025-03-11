@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /** This class implements the DB server. */
 public class DBServer {
@@ -48,8 +49,9 @@ public class DBServer {
     * <p>This method handles all incoming DB commands and carries out the required actions.
     */
     public String handleCommand(String query) {
-        // TODO implement your server logic here
-        String tableData;
+
+        if (Objects.equals(query, "")) return "";
+        String response;
 
         try {
             Tokeniser tokeniser = new Tokeniser(query);
@@ -57,12 +59,12 @@ public class DBServer {
             Parser parser = new Parser(tokens);
             Command command;
             command = parser.parseQuery();
-            tableData = command.execute(this);
+            response = command.execute(this);
         }
         catch (Exception e) {
-            return "[ERROR]\n" + e.getMessage();
+            return "[ERROR]" + e.getMessage();
         }
-        return "[OK]\n" + tableData;
+        return "[OK]" + response;
     }
 
     public Database getActiveDatabase() {

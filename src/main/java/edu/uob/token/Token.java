@@ -25,6 +25,8 @@ public class Token {
 
     private static TokenType characteriseToken(String token) throws Exception {
 
+        token = token.toUpperCase();
+
         return switch (token) {
             case "USE" -> TokenType.USE;
             case "CREATE" -> TokenType.CREATE;

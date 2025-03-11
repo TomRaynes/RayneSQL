@@ -10,7 +10,7 @@ public abstract class DBException extends Exception {
     @Serial private static final long serialVersionUID = 1;
 
     public DBException(String message) {
-        super(message);
+        super("\n" + message);
     }
 
     public static class UnexpectedTokenException extends DBException {
@@ -128,6 +128,16 @@ public abstract class DBException extends Exception {
 
         public ErrorLoadingTableException(String tableName) {
             super("An error occurred while loading table data of table '" + tableName + "'");
+
+        }
+    }
+
+    public static class ErrorLoadingDatabaseException extends DBException {
+
+        @Serial private static final long serialVersionUID = 1;
+
+        public ErrorLoadingDatabaseException(String databaseName) {
+            super("An error occurred while loading database '" + databaseName + "'");
 
         }
     }

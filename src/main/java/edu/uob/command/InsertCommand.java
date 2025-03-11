@@ -20,8 +20,10 @@ public class InsertCommand extends Command {
     public String execute(DBServer server) throws Exception {
 
         Table table = getTable(server, tableName);
+        table.loadTableData();
         table.addRow(values);
-        return null;
+        table.saveTable();
+        return "";
     }
 
     public String getClassAttributes() {

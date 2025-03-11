@@ -14,8 +14,9 @@ public class DropDatabaseCommand extends Command {
     public String execute(DBServer server) throws Exception {
 
         Database database = new Database(server.getStorageFolderPath(), databaseName);
+        database.loadDatabase();
         database.deleteDatabase();
-        return null;
+        return "";
     }
 
     public String getClassAttributes() {

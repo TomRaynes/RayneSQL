@@ -22,8 +22,6 @@ public class Database {
 
     public void deleteDatabase() throws Exception {
 
-        loadDatabase();
-
         for (TableNamePair tableNamePair : tables) {
             tableNamePair.getTable().deleteTable();
         }
@@ -36,8 +34,6 @@ public class Database {
     }
 
     public void addTable(String tableName, ArrayList<String> attributes) throws Exception {
-
-        loadDatabase();
 
         if (getTable(tableName) != null) {
             throw new DBException.TableAlreadyExistsException(tableName, databaseName);
@@ -54,8 +50,6 @@ public class Database {
     }
 
     public void removeTable(String tableName) throws Exception {
-
-        loadDatabase();
 
         for (TableNamePair tableNamePair : tables) {
 
@@ -126,9 +120,9 @@ public class Database {
     public File[] getDirectoryContents() throws Exception {
 
         File database = new File(getDatabasePath());
-        if (!database.exists()) throw new Exception();
+        if (!database.exists()) throw new DBException.DatabaseDoesNotExistException(databaseName);
         File[] databaseFiles = database.listFiles();
-        if (databaseFiles == null) throw new Exception();
+        if (databaseFiles == null) throw new DBException.ErrorLoadingDatabaseException(databaseName);
         return databaseFiles;
     }
 
@@ -153,6 +147,13 @@ public class Database {
         int keyIndex1 = table1.getAttributeIndex(command.getAttribute1());
         int keyIndex2 = table2.getAttributeIndex(command.getAttribute2());
 
+        if (keyIndex1 < 0) {
+            throw new DBException.AttributeDoesNotExistException(command.getAttribute1());
+        }
+        if (keyIndex2 < 0) {
+            throw new DBException.AttributeDoesNotExistException(command.getAttribute2());
+        }
+
         ArrayList<ArrayList<String>> joinedTable = getJoinedTableRows(rows1, keyIndex1,
                                                                       rows2, keyIndex2);
 
@@ -160,16 +161,7 @@ public class Database {
         attributes.addAll(table2.getNonKeyAttributes(keyIndex2));
         joinedTable.add(0, attributes);
 
-        // Remove id columns of joined old tables
-        int indexId1 = 0, indexId2 = rows1.size()-1;
-
-        for (ArrayList<String> row : joinedTable) {
-            row.remove(indexId2);
-            row.remove(indexId1);
-        }
-
         int id = 0;
-
         // Add new id column
         for (ArrayList<String> row : joinedTable) {
             row.add(0, Integer.toString(id++));
@@ -187,7 +179,8 @@ public class Database {
 
         for (TableRow row1 : rows1) {
             String key = row1.getEntryFromIndex(keyIndex1).getValue();
-            row1.removeColumnEntry(keyIndex1);
+            row1.removeColumnEntry(keyIndex1); // remove key
+            if (keyIndex1 != 0) row1.removeColumnEntry(0); // remove id
 
             if (hashMap.containsKey(key)) hashMap.get(key).add(row1);
             else {
@@ -195,9 +188,10 @@ public class Database {
                 hashMap.get(key).add(row1);
             }
         }
-        for (TableRow row2 : rows2) { // TODO: Include unmatched entries? Currently discarding no matched data
+        for (TableRow row2 : rows2) {
             String key = row2.getEntryFromIndex(keyIndex2).getValue();
             row2.removeColumnEntry(keyIndex2);
+            if (keyIndex2 != 0) row2.removeColumnEntry(0);
             ArrayList<TableRow> matches = hashMap.get(key);
 
             if (matches != null) {
@@ -206,15 +200,6 @@ public class Database {
                 }
             }
         }
-        // remove the key columns from the joined rows
-        int startTable2 = rows1.get(0).getSize();
-
-//        for (ArrayList<String> row : joinedRows) {
-//            row.remove(startTable2 + keyIndex2);
-//            row.remove(startTable2);
-//            row.remove(keyIndex1);
-//            row.remove(0);
-//        }
         return joinedRows;
     }
 

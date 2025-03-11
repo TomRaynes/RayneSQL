@@ -21,7 +21,7 @@ public class UseCommand extends Command {
         }
         database.loadDatabase();
         server.setActiveDatabase(database);
-        return null;
+        return "";
     }
 
     public String getClassAttributes() {

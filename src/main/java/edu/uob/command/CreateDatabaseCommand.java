@@ -14,7 +14,7 @@ public class CreateDatabaseCommand extends Command {
     public String execute(DBServer server) throws Exception {
         Database database = new Database(server.getStorageFolderPath(), databaseName);
         database.createDirectory();
-        return null;
+        return "";
     }
 
     public String getClassAttributes() {

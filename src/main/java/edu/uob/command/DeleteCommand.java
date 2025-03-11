@@ -21,12 +21,14 @@ public class DeleteCommand extends Command {
     public String execute(DBServer server) throws Exception {
 
         Table table = getTable(server, tableName);
+        table.loadTableData();
         ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
 
         for (TableRow row : rows) {
             table.removeRow(row);
         }
-        return null;
+        table.saveTable();
+        return "";
     }
 
     public String getClassAttributes() {

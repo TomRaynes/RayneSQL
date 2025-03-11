@@ -19,8 +19,9 @@ public class CreateTableCommand extends Command {
     public String execute(DBServer server) throws Exception {
         Database database = server.getActiveDatabase();
         if (database == null) throw new DBException.NoActiveDatabaseException();
+        database.loadDatabase();
         database.addTable(tableName, attributes);
-        return null;
+        return "";
     }
 
     public String getClassAttributes() {

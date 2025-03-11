@@ -19,7 +19,6 @@ public class Parser {
 
     public Command parseQuery() throws Exception {
 
-        if (tokens.isEmpty()) return null;
         TokenType type = tokens.get(index++).getType();
 
         return switch (type) {
@@ -43,7 +42,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String databaseName = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new UseCommand(databaseName);
+        return new UseCommand(databaseName.toLowerCase());
     }
 
     private Command parseCreateQuery() throws Exception {
@@ -61,7 +60,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String databaseName = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new CreateDatabaseCommand(databaseName);
+        return new CreateDatabaseCommand(databaseName.toLowerCase());
     }
 
     private CreateTableCommand parseCreateTableQuery() throws Exception {
@@ -76,7 +75,7 @@ public class Parser {
             attributes = getValueList(false, TokenType.IDENTIFIER);
         }
         expectTerminalTokens();
-        return new CreateTableCommand(tableName, attributes);
+        return new CreateTableCommand(tableName.toLowerCase(), attributes);
     }
 
     private Command parseDropQuery() throws Exception {
@@ -94,7 +93,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String databaseName = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new DropDatabaseCommand(databaseName);
+        return new DropDatabaseCommand(databaseName.toLowerCase());
     }
 
     private DropTableCommand parseDropTableQuery() throws Exception {
@@ -102,7 +101,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new DropTableCommand(tableName);
+        return new DropTableCommand(tableName.toLowerCase());
     }
 
     private AlterCommand parseAlterQuery() throws Exception {
@@ -112,11 +111,11 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
         expectTokenType(TokenType.DROP, TokenType.ADD);
-        String alterationType = tokens.get(index++).toString();
+        Token alterationType = tokens.get(index++);
         expectTokenType(TokenType.IDENTIFIER);
         String attribute = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new AlterCommand(tableName, alterationType, attribute);
+        return new AlterCommand(tableName.toLowerCase(), alterationType, attribute);
     }
 
     private InsertCommand parseInsertQuery() throws Exception {
@@ -132,7 +131,7 @@ public class Parser {
         ArrayList<String> values = getValueList(false, TokenType.STRING_LITERAL, TokenType.TRUE,
                 TokenType.FALSE, TokenType.FLOAT_LITERAL, TokenType.INTEGER_LITERAL, TokenType.NULL);
         expectTerminalTokens();
-        return new InsertCommand(tableName, values);
+        return new InsertCommand(tableName.toLowerCase(), values);
     }
 
     private SelectCommand parseSelectQuery() throws Exception {
@@ -155,7 +154,7 @@ public class Parser {
         if (tokens.get(index).getType() != TokenType.SEMICOLON) {
             condition = getCondition();
         }
-        return new SelectCommand(tableName, attributes, condition);
+        return new SelectCommand(tableName.toLowerCase(), attributes, condition);
     }
 
     private UpdateCommand parseUpdateQuery() throws Exception {
@@ -171,7 +170,7 @@ public class Parser {
 
         index--;
         ConditionNode condition = getCondition();
-        return new UpdateCommand(tableName, nameValuePairs, condition);
+        return new UpdateCommand(tableName.toLowerCase(), nameValuePairs, condition);
     }
 
     private DeleteCommand parseDeleteQuery() throws Exception {
@@ -181,7 +180,7 @@ public class Parser {
         expectTokenType(TokenType.IDENTIFIER);
         String tableName = tokens.get(index++).toString();
         ConditionNode condition = getCondition();
-        return new DeleteCommand(tableName, condition);
+        return new DeleteCommand(tableName.toLowerCase(), condition);
     }
 
     private JoinCommand parseJoinQuery() throws Exception {
@@ -200,7 +199,8 @@ public class Parser {
         index++;
         String attribute2 = tokens.get(index++).toString();
         expectTerminalTokens();
-        return new JoinCommand(tableName1, tableName2, attribute1, attribute2);
+        return new JoinCommand(tableName1.toLowerCase(), tableName2.toLowerCase(),
+                               attribute1, attribute2);
     }
 
     private NameValuePair getNameValuePair() throws Exception {
@@ -251,6 +251,7 @@ public class Parser {
             if (tokens.get(index).getType() == type) return;
         }
         System.out.println("index = " + index);
+        System.out.println(tokens.get(index).toString());
         throw new DBException.UnexpectedTokenException(tokens.get(index).getType(), types);
     }
 

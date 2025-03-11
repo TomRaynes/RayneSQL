@@ -12,6 +12,10 @@ public class ColumnEntry {
     }
 
     public String getValue() {
+
+        if (entry.startsWith("'") && entry.endsWith("'")) {
+            return entry.substring(1, entry.length()-1);
+        }
         return entry;
     }
 
