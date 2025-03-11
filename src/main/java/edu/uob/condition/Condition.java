@@ -31,14 +31,18 @@ public class Condition extends ConditionNode {
             } catch (NumberFormatException e) {
                 return false; // Condition and actual are incompatible
             }
+            //System.out.println(attribute + " " + comparator.getType() + " " + value.toString());
             return assessNumberCondition(conditionalValue, actualValueDouble);
         }
         // Remaining values may only be assessed on basis of equality or sub-string
         if (comparator.getType() == ComparatorType.EQUAL) {
             return Objects.equals(actualValue.toString(), value.toString());
         }
+        if (comparator.getType() == ComparatorType.NOT_EQUAL) {
+            return !Objects.equals(actualValue.toString(), value.toString());
+        }
         if (comparator.getType() == ComparatorType.LIKE) {
-            return containsSubString(value.toString(), actualValue.toString());
+            return containsSubString(value.toString(), actualValue.getValue());
         }
         return false;
     }

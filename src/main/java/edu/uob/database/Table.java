@@ -10,10 +10,7 @@ import edu.uob.token.TokenType;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Table {
     String storageFolderPath;
@@ -27,8 +24,17 @@ public class Table {
         this.tableName = tableName;
     }
 
-    public ArrayList<String> getAttributes() {
-        return attributes;
+    public ArrayList<String> getAttributes(ArrayList<String> attributes) throws Exception {
+
+        if (attributes == null) return this.attributes;
+        ArrayList<String> selectedAttributes = new ArrayList<>();
+
+        for (String attribute : attributes) {
+            int index = getAttributeIndex(attribute);
+            if (index < 0) throw new DBException.AttributeDoesNotExistException(attribute);
+            selectedAttributes.add(this.attributes.get(index));
+        }
+        return selectedAttributes;
     }
 
     public ArrayList<String> getNonKeyAttributes(int keyIndex) {
@@ -44,6 +50,24 @@ public class Table {
 
     public void setAttributes(ArrayList<String> attributes) {
         this.attributes = attributes;
+    }
+
+    public void checkForDuplicateAttributes() throws Exception {
+
+        Map<String, String> tableAttributes = new HashMap<>();
+
+        for (String attribute : attributes) {
+
+            if (tableAttributes.containsKey(attribute.toLowerCase())) {
+
+                if (Objects.equals(tableAttributes.get(attribute.toLowerCase()),
+                                   attribute.toLowerCase())) {
+
+                    throw new DBException.DuplicateAttributesException(attribute);
+                }
+            }
+            tableAttributes.put(attribute, attribute);
+        }
     }
 
     public void initialiseIDs() {
@@ -199,6 +223,19 @@ public class Table {
 
         ArrayList<TableRow> rows = new ArrayList<>();
 
+        // attribute existence is checked inside conditionSatisfied()
+        // so must check here if table has no rows
+        if (tableRows.isEmpty()) {
+            ArrayList<Condition> conditions = ConditionNode.getAllSubConditions(node);
+
+            for (Condition condition : conditions) {
+                String attribute = condition.getAttribute();
+
+                if (getAttributeIndex(attribute) < 0 ) {
+                    throw new DBException.AttributeDoesNotExistException(attribute);
+                }
+            }
+        }
         for (TableRow row : tableRows) {
             if (conditionSatisfied(row, node)) rows.add(row);
         }

@@ -26,7 +26,7 @@ public class SelectCommand extends Command {
         table.loadTableData();
         ArrayList<TableRow> rows;
 
-        if (attributes == null) attributes = table.getAttributes();
+        attributes = table.getAttributes(attributes);
         if (condition == null) rows = table.getTableRows();
         else rows = table.getRowsFromCondition(condition);
 

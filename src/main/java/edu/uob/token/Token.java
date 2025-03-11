@@ -19,7 +19,7 @@ public class Token {
     }
 
     public String toString() {
-        if (type == TokenType.IDENTIFIER) return token.replaceAll("'", "");
+        if (type == TokenType.STRING_LITERAL) return token.replaceAll("'", "");
         return token;
     }
 

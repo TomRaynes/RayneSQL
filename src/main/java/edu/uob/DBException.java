@@ -254,4 +254,14 @@ public abstract class DBException extends Exception {
         }
     }
 
+    public static class DuplicateAttributesException extends DBException {
+
+        @Serial private static final long serialVersionUID = 1;
+
+        public DuplicateAttributesException(String attribute) {
+            super("Attempting to add duplicate attributes '" + attribute + "' to table\n" +
+                    "Table attributes must be unique");
+
+        }
+    }
 }

@@ -44,6 +44,7 @@ public class Database {
         if (attributes == null) attributes = new ArrayList<>();
         attributes.add(0, "id");
         table.setAttributes(attributes);
+        table.checkForDuplicateAttributes();
         TableNamePair tableNamePair = new TableNamePair(tableName, table);
         tables.add(tableNamePair);
         table.saveTable();
@@ -61,7 +62,7 @@ public class Database {
         throw new DBException.TableDoesNotExistException(tableName, databaseName);
     }
 
-    public Table getTable(String tableName) { // TODO: is this method necessary
+    public Table getTable(String tableName) {
 
         for (TableNamePair tableNamePair : tables) {
 
