@@ -70,14 +70,22 @@ public class Token {
         if (isStringLiteral(token)) return TokenType.STRING_LITERAL;
         if (isIdentifier(token)) return TokenType.IDENTIFIER;
         else {
-            System.out.println(token);
             throw new DBException.InvalidTokenException(token);
         }
     }
 
     private static boolean isIntegerLiteral(String token) {
 
-        for (int i=0; i<token.length(); i++) {
+        char ch = token.charAt(0);
+        int length = token.length();
+
+        if (!Character.isDigit(ch) && ch != '+' && ch != '-') return false;
+
+        if (ch == '+' || ch == '-') {
+            if (length < 2) return false;
+        }
+
+        for (int i=1; i<length; i++) {
             if (!Character.isDigit(token.charAt(i))) return false;
         }
         return true;
@@ -86,13 +94,21 @@ public class Token {
     private static boolean isFloatLiteral(String token) {
 
         char ch = token.charAt(0);
+        int length = token.length();
         int decimalPoints = 0;
 
         if (!Character.isDigit(ch) && ch != '+' && ch != '-') return false;
 
-        for (int i=1; i<token.length(); i++) {
+        if (ch == '+' || ch == '-') {
+            if (length < 4 || token.charAt(1) == '.' ||
+                    token.charAt(length-1) == '.') return false;
+        }
+        else if (length < 3 || token.charAt(0) == '.' ||
+                    token.charAt(length-1) == '.') return false;
+
+        for (int i=1; i<length; i++) {
             if (!Character.isDigit(token.charAt(i)) && token.charAt(i) != '.') return false;
-            if (token.charAt(i) != '.') decimalPoints++;
+            if (token.charAt(i) == '.') decimalPoints++;
         }
         return decimalPoints == 1;
     }
@@ -107,7 +123,10 @@ public class Token {
         if (token.charAt(0) != '\'' || token.charAt(token.length()-1) != '\'') return false;
 
         for (int i=1; i<token.length()-1; i++) {
-            if (!legalChars.contains(Character.toString(token.charAt(i)))) return false;
+            if (!legalChars.contains(Character.toString(token.charAt(i)))) {
+                System.out.println(token.charAt(i));
+                return false;
+            }
         }
         return true;
     }

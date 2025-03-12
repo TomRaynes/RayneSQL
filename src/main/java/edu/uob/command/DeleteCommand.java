@@ -2,7 +2,6 @@ package edu.uob.command;
 
 import edu.uob.DBServer;
 import edu.uob.condition.ConditionNode;
-import edu.uob.database.Database;
 import edu.uob.database.Table;
 import edu.uob.database.TableRow;
 

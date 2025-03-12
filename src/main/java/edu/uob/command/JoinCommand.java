@@ -3,12 +3,8 @@ package edu.uob.command;
 import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
-import edu.uob.database.Table;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class JoinCommand extends Command {
 

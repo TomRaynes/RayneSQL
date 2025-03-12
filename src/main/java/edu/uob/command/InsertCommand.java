@@ -1,7 +1,6 @@
 package edu.uob.command;
 
 import edu.uob.DBServer;
-import edu.uob.database.Database;
 import edu.uob.database.Table;
 
 import java.util.ArrayList;

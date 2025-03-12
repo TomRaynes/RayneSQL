@@ -4,7 +4,6 @@ import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.NameValuePair;
 import edu.uob.condition.ConditionNode;
-import edu.uob.database.Database;
 import edu.uob.database.Table;
 import edu.uob.database.TableRow;
 

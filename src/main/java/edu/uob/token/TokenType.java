@@ -13,6 +13,7 @@ public enum TokenType {
     VALUES,
     TRUE,
     FALSE,
+    NULL,
     SELECT,
     FROM,
     WHERE,
@@ -34,7 +35,6 @@ public enum TokenType {
     STRING_LITERAL,
     FLOAT_LITERAL,
     INTEGER_LITERAL,
-    NULL,
     IDENTIFIER;
 
     public TokenType getNextType() {

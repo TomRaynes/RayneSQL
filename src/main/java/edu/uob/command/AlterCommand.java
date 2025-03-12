@@ -1,12 +1,9 @@
 package edu.uob.command;
 
 import edu.uob.DBServer;
-import edu.uob.database.Database;
 import edu.uob.database.Table;
 import edu.uob.token.Token;
 import edu.uob.token.TokenType;
-
-import java.util.Objects;
 
 public class AlterCommand extends Command {
 

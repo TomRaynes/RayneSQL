@@ -1,4 +1,5 @@
 package edu.uob.token;
+
 import java.util.ArrayList;
 
 public class Tokeniser {
@@ -17,11 +18,15 @@ public class Tokeniser {
 
         for (int i=0; i<fragments.length; i++) {
 
+            if (fragments[i].isEmpty()) continue;
+
             if (i%2 != 0) tokens.add(new Token("'" + fragments[i] + "'"));
             else {
                 String[] nextBatchOfTokens = tokenise(fragments[i]);
 
                 for (String token : nextBatchOfTokens) {
+
+                    if (token.isEmpty()) continue;
                     tokens.add(new Token(token));
                 }
             }

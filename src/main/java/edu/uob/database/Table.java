@@ -1,7 +1,6 @@
 package edu.uob.database;
 
 import edu.uob.DBException;
-import edu.uob.NameValuePair;
 import edu.uob.condition.LogicalNode;
 import edu.uob.condition.Condition;
 import edu.uob.condition.ConditionNode;

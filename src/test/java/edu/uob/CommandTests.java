@@ -157,6 +157,13 @@ public class CommandTests {
                 "id   " + attribute1 + "   " + attribute2 + "   \n" +
                 "2    " + value1 + "   " + value2 + "   ";
         assertEquals(expected, response);
+
+        // empty string
+        sendCommandToServer("CREATE TABLE strings (string);");
+        response = sendCommandToServer("INSERT INTO strings VALUES ('');");
+        expected = "[ERROR]\nExpected token 'STRING_LITERAL', 'TRUE', 'FALSE', 'FLOAT_LITERAL', " +
+                "'INTEGER_LITERAL' or 'NULL' but found 'CLOSE_BRACKET'";
+        assertEquals(expected, response);
     }
 
     @Test
