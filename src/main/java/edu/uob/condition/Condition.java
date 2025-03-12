@@ -31,20 +31,18 @@ public class Condition extends ConditionNode {
             } catch (NumberFormatException e) {
                 return false; // Condition and actual are incompatible
             }
-            //System.out.println(attribute + " " + comparator.getType() + " " + value.toString());
             return assessNumberCondition(conditionalValue, actualValueDouble);
         }
+        // Case-insensitive querying on all values except string literals
+        String actual = processActual(actualValue), conditional = processConditional();
+
         // Remaining values may only be assessed on basis of equality or sub-string
-        if (comparator.getType() == ComparatorType.EQUAL) {
-            return Objects.equals(actualValue.toString(), value.toString());
-        }
-        if (comparator.getType() == ComparatorType.NOT_EQUAL) {
-            return !Objects.equals(actualValue.toString(), value.toString());
-        }
-        if (comparator.getType() == ComparatorType.LIKE) {
-            return containsSubString(value.toString(), actualValue.getValue());
-        }
-        return false;
+        return switch (comparator.getType()) {
+            case EQUAL -> Objects.equals(actual, conditional);
+            case NOT_EQUAL -> !Objects.equals(actual, conditional);
+            case LIKE -> containsSubString(conditional, actual);
+            default -> false;
+        };
     }
 
     private boolean assessNumberCondition(double conditionalValue, double actualValue) {
@@ -57,8 +55,24 @@ public class Condition extends ConditionNode {
             case LESS_THAN -> actualValue < conditionalValue;
             case NOT_EQUAL -> actualValue != conditionalValue;
             case LIKE -> containsSubString(Double.toString(conditionalValue),
-                                           Double.toString(actualValue));
+                    Double.toString(actualValue));
         };
+    }
+
+    private String processActual(ColumnEntry actual) {
+
+        if (value.getType() != TokenType.STRING_LITERAL) {
+            return actual.toString().toLowerCase();
+        }
+        return actual.toString();
+    }
+
+    private String processConditional() {
+
+        if (value.getType() != TokenType.STRING_LITERAL) {
+            return value.toString().toLowerCase();
+        }
+        return value.toString();
     }
 
     private boolean containsSubString(String subString, String string) {
@@ -67,18 +81,6 @@ public class Condition extends ConditionNode {
 
     public String getAttribute() {
         return attribute;
-    }
-
-    public Comparator getComparator() {
-        return comparator;
-    }
-
-    public Token getValue() {
-        return value;
-    }
-
-    public void printNode() {
-        System.out.println(attribute + comparator.toString() + value.toString());
     }
 
     public String toString() {

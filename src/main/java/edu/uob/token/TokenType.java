@@ -28,12 +28,17 @@ public enum TokenType {
     WILDCARD,
     COMMA,
     SEMICOLON,
+    EOT,
     COMPARATOR,
     ASSIGNMENT_EQUALS,
     STRING_LITERAL,
     FLOAT_LITERAL,
     INTEGER_LITERAL,
     NULL,
-    EOT,
-    IDENTIFIER
+    IDENTIFIER;
+
+    public TokenType getNextType() {
+        if (ordinal() == values().length - 1) return null;
+        return values()[ordinal() + 1];
+    }
 }

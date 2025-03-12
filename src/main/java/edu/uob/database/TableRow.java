@@ -17,10 +17,6 @@ public class TableRow {
         }
     }
 
-    public int getSize() {
-        return data.size();
-    }
-
     public void addColumnEntry(String entry) {
         data.add(new ColumnEntry(entry));
     }

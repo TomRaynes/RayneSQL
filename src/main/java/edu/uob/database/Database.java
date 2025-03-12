@@ -158,6 +158,7 @@ public class Database {
         ArrayList<ArrayList<String>> joinedTable = getJoinedTableRows(rows1, keyIndex1,
                                                                       rows2, keyIndex2);
 
+        // Add attributes to first row
         ArrayList<String> attributes = table1.getNonKeyAttributes(keyIndex1);
         attributes.addAll(table2.getNonKeyAttributes(keyIndex2));
         joinedTable.add(0, attributes);
@@ -191,8 +192,8 @@ public class Database {
         }
         for (TableRow row2 : rows2) {
             String key = row2.getEntryFromIndex(keyIndex2).getValue();
-            row2.removeColumnEntry(keyIndex2);
-            if (keyIndex2 != 0) row2.removeColumnEntry(0);
+            row2.removeColumnEntry(keyIndex2); // remove key
+            if (keyIndex2 != 0) row2.removeColumnEntry(0); // remove id
             ArrayList<TableRow> matches = hashMap.get(key);
 
             if (matches != null) {
@@ -202,10 +203,6 @@ public class Database {
             }
         }
         return joinedRows;
-    }
-
-    public String getStorageFolderPath() {
-        return storageFolderPath;
     }
 
     private String getDatabasePath() {

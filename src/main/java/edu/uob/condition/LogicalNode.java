@@ -22,10 +22,6 @@ public class LogicalNode extends ConditionNode {
         this.rightChild = rightChild;
     }
 
-    public void printNode() {
-        System.out.println(type);
-    }
-
     public String toString() {
         return type.toString();
     }

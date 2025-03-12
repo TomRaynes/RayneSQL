@@ -69,7 +69,10 @@ public class Token {
         if (isFloatLiteral(token)) return TokenType.FLOAT_LITERAL;
         if (isStringLiteral(token)) return TokenType.STRING_LITERAL;
         if (isIdentifier(token)) return TokenType.IDENTIFIER;
-        else throw new DBException.InvalidTokenException(token);
+        else {
+            System.out.println(token);
+            throw new DBException.InvalidTokenException(token);
+        }
     }
 
     private static boolean isIntegerLiteral(String token) {

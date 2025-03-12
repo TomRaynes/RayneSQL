@@ -4,9 +4,8 @@ import java.util.ArrayList;
 public class Tokeniser {
 
     String query;
-    String[] specialCharacters = {"(", ")", ",", ";", "*", ">=", "==", "<=", "!="};
+    String[] specialTokens = {"(", ")", ",", ";", "*", ">=", "==", "<=", "!="};
     ArrayList<Token> tokens = new ArrayList<>();
-    private static final char END_OF_TRANSMISSION = 4;
 
     public Tokeniser(String query) {
         this.query = query;
@@ -14,45 +13,40 @@ public class Tokeniser {
     }
 
     public ArrayList<Token> getAllTokens() throws Exception {
-        // Split the query on single quotes (to separate out query text from string literals)
         String[] fragments = query.split("'");
-        for (int i=0; i<fragments.length; i++) {
-            // Every other fragment is a string literal, so just add it straight to "result" token list
-            if (i%2 != 0) tokens.add(new Token("'" + fragments[i] + "'"));
 
-                // If it's not a string literal, it must be query text (which needs further processing)
+        for (int i=0; i<fragments.length; i++) {
+
+            if (i%2 != 0) tokens.add(new Token("'" + fragments[i] + "'"));
             else {
-                // Tokenise the fragment into an array of strings - this is the "clever" bit !
                 String[] nextBatchOfTokens = tokenise(fragments[i]);
-                // Then copy all the tokens into the "result" list (needs a bit of conversion)
-                //tokens.addAll(Arrays.asList(nextBatchOfTokens));
 
                 for (String token : nextBatchOfTokens) {
                     tokens.add(new Token(token));
                 }
             }
         }
-        // Finally, loop through the result array list, printing out each token a line at a time
-
         tokens.add(new Token("\u0004"));
         return tokens;
     }
 
     String[] tokenise(String input) {
-        // Add in some extra padding spaces either side of the "special characters"...
-        // so we can be SURE that they are separated by AT LEAST one space (possibly more)
-        for(int i=0; i<specialCharacters.length; i++) {
-            input = input.replace(specialCharacters[i], " " + specialCharacters[i] + " ");
+        // Add ' ' padding around all occurrences of special tokens
+        for (String specialToken : specialTokens) {
+            input = input.replace(specialToken, " " + specialToken + " ");
         }
+        // Occurrences of '=' which are not part of '==', '!=', '<=' or '>='
         input = input.replaceAll("(?<![=!<>])=(?!=)", " = ");
+        // Occurrences of '>' which are not part of '>='
         input = input.replaceAll(">(?!=)", " > ");
+        // Occurrences of '<' which are not part of '<='
         input = input.replaceAll("<(?!=)", " < ");
 
-        // Remove any double spaces (the previous padding activity might have introduced some of these)
-        while (input.contains("  ")) input = input.replace("  ", " "); // Replace two spaces by one
-        // Remove any whitespace from the beginning and the end that might have been introduced
+        // Remove any double spaces
+        while (input.contains("  ")) input = input.replace("  ", " ");
+        // Remove any whitespace from the beginning and end
         input = input.trim();
-        // Finally split on the space char (since there will now ALWAYS be a SINGLE space between tokens)
+        // Finally split on the space char
         return input.split(" ");
     }
 }

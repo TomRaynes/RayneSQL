@@ -235,6 +235,20 @@ public class CommandTests {
                 3    George   Guitar      \s""";
         assertEquals(expected, response);
 
+        // Test boolean
+        sendCommandToServer("ALTER TABLE " + table + " ADD Alive;");
+        sendCommandToServer("UPDATE " + table + " SET Alive = TRUE WHERE name == 'Paul';");
+        sendCommandToServer("UPDATE " + table + " SET Alive = TRUE WHERE name == 'Ringo';");
+        sendCommandToServer("UPDATE " + table + " SET Alive = FALSE WHERE name == 'John';");
+        sendCommandToServer("UPDATE " + table + " SET Alive = FALSE WHERE name == 'George';");
+        response = sendCommandToServer("SELECT name, instrument FROM " + table + " WHERE alive == false;");
+        expected = """
+                [OK]
+                Name     Instrument  \s
+                John     Guitar      \s
+                George   Guitar      \s""";
+        assertEquals(expected, response);
+
         // test big conditions
         sendCommandToServer("CREATE TABLE condition (number, colour, month, fruit);");
         sendCommandToServer("INSERT INTO condition VALUES (5, 'red', 'december', 'apple');");

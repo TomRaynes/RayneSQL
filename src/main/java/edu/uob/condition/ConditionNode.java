@@ -7,19 +7,6 @@ public abstract class ConditionNode {
     ConditionNode leftChild = null;
     ConditionNode rightChild = null;
 
-
-    public abstract void printNode();
-
-    public void printTree() {
-
-        if (this instanceof LogicalNode) {
-            this.printNode();
-            this.leftChild.printTree();
-            this.rightChild.printTree();
-        }
-        else if (this instanceof Condition) this.printNode();
-    }
-
     public ConditionNode getLeftChild() {
         return leftChild;
     }

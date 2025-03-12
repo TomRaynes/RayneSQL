@@ -53,15 +53,15 @@ public final class ConditionParser {
         int nestingLevel = 0;
         Token logicalToken = null;
 
-        for (int index=0; index<tokens.size(); index++) {
-            TokenType type = tokens.get(index).getType();
+        for (Token token : tokens) {
+            TokenType type = token.getType();
 
             if (type == TokenType.OPEN_BRACKET) nestingLevel++;
             else if (type == TokenType.CLOSE_BRACKET) nestingLevel--;
             else if (nestingLevel == 0 && (type == TokenType.AND || type == TokenType.OR)) {
 
-                if (logicalToken == null) logicalToken = tokens.get(index);
-                else if (logicalToken.getType() != tokens.get(index).getType()) {
+                if (logicalToken == null) logicalToken = token;
+                else if (logicalToken.getType() != token.getType()) {
                     throw new DBException.ConflictingLogicalOperatorException();
                 }
             }
