@@ -159,10 +159,36 @@ public class CommandTests {
         assertEquals(expected, response);
 
         // empty string
-        sendCommandToServer("CREATE TABLE strings (string);");
+        sendCommandToServer("CREATE TABLE strings (string1);");
         response = sendCommandToServer("INSERT INTO strings VALUES ('');");
-        expected = "[ERROR]\nExpected token 'STRING_LITERAL', 'TRUE', 'FALSE', 'FLOAT_LITERAL', " +
-                "'INTEGER_LITERAL' or 'NULL' but found 'CLOSE_BRACKET'";
+        assertEquals("[OK]", response);
+        sendCommandToServer("ALTER TABLE strings ADD string2;");
+        response = sendCommandToServer("INSERT INTO strings VALUES ('', '');");
+        assertEquals("[OK]", response);
+        response = sendCommandToServer("INSERT INTO strings VALUES ('string', '');");
+        assertEquals("[OK]", response);
+        response = sendCommandToServer("INSERT INTO strings VALUES ('', 'string');");
+        assertEquals("[OK]", response);
+        response = sendCommandToServer("INSERT INTO strings VALUES (' ', '');");
+        assertEquals("[OK]", response);
+        response = sendCommandToServer("SELECT * FROM strings;");
+        expected = """
+                [OK]
+                id   string1   string2  \s
+                1              NULL     \s
+                2                       \s
+                3    string             \s
+                4              string   \s
+                5                       \s""";
+        assertEquals(expected, response);
+
+        response = sendCommandToServer("SELECT * FROM strings WHERE string1 == '';");
+        expected = """
+                [OK]
+                id   string1   string2  \s
+                1              NULL     \s
+                2                       \s
+                4              string   \s""";
         assertEquals(expected, response);
     }
 
@@ -426,5 +452,14 @@ public class CommandTests {
                 1    Ringo         1940      \s
                 2    Paul          1942      \s""";
         assertEquals(expected, response, "Actual:\n\n" + response);
+
+        // Joining same table together
+        response = sendCommandToServer("JOIN people AND people ON age AND age;");
+        expected = """
+                [OK]
+                id   people.name   people.name  \s
+                1    Paul          Paul         \s
+                2    Ringo         Ringo        \s""";
+        assertEquals(expected, response);
     }
 }

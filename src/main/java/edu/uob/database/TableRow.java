@@ -2,6 +2,7 @@ package edu.uob.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TableRow {
     ArrayList<ColumnEntry> data;
@@ -45,11 +46,22 @@ public class TableRow {
         return data.get(index);
     }
 
+    public ArrayList<String> getDeepCopy() {
+        ArrayList<String> rowCopy = new ArrayList<>();
+
+        for (ColumnEntry datum : data) {
+            rowCopy.add(datum.toString());
+        }
+        return rowCopy;
+    }
+
     public String toString() {
         StringBuilder str = new StringBuilder();
 
         for (ColumnEntry col : data) {
-            str.append(col.toString());
+            String entry = col.toString();
+            if (Objects.equals(entry, "")) str.append(".");
+            else str.append(entry);
             str.append("\t");
         }
         return str.toString();

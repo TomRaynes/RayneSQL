@@ -39,9 +39,10 @@ public class Database {
             throw new DBException.TableAlreadyExistsException(tableName, databaseName);
         }
         Table table = new Table(getDatabasePath(), tableName);
-        table.initialiseIDs();
 
-        if (attributes == null) attributes = new ArrayList<>();
+        if (attributes == null) {
+            attributes = new ArrayList<>();
+        }
         attributes.add(0, "id");
         table.setAttributes(attributes);
         table.checkForDuplicateAttributes();
@@ -121,9 +122,15 @@ public class Database {
     public File[] getDirectoryContents() throws Exception {
 
         File database = new File(getDatabasePath());
-        if (!database.exists()) throw new DBException.DatabaseDoesNotExistException(databaseName);
+
+        if (!database.exists()) {
+            throw new DBException.DatabaseDoesNotExistException(databaseName);
+        }
         File[] databaseFiles = database.listFiles();
-        if (databaseFiles == null) throw new DBException.ErrorLoadingDatabaseException(databaseName);
+
+        if (databaseFiles == null) {
+            throw new DBException.ErrorLoadingDatabaseException(databaseName);
+        }
         return databaseFiles;
     }
 
@@ -142,9 +149,12 @@ public class Database {
         table1.loadTableData();
         table2.loadTableData();
 
+        if (Objects.equals(table1, table2)) table2 = table1.getDeepCopy();
+
         ArrayList<TableRow> rows1 = table1.getTableRows();
         ArrayList<TableRow> rows2 = table2.getTableRows();
 
+        // Indexes of the rows that the tables are join on
         int keyIndex1 = table1.getAttributeIndex(command.getAttribute1());
         int keyIndex2 = table2.getAttributeIndex(command.getAttribute2());
 

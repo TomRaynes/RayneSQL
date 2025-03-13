@@ -36,7 +36,6 @@ public class TokeniserTests {
             actual = tokeniser.getAllTokens();
         }
         catch (Exception e) {
-            System.out.println(e.getMessage());
             return false;
         }
         this.actual = actual;
@@ -107,7 +106,7 @@ public class TokeniserTests {
     @Test
     public void testStringLiteralTokens() {
 
-        assertTrue(getActual("        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" +
+        assertTrue(getActual("''        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" +
                                     "'abcdefghijklmnopqrstuvwxyz' " +
                                     "'0123456789'      " +
                                     "   ' !#$%&()*+,-./:;<=>?@[\\]^_`{}~'    "));
@@ -146,9 +145,6 @@ public class TokeniserTests {
                                     "ABCdef0123456789"));
 
         for (int i=0; i<actual.size()-1; i++) {
-            if (actual.get(i).getType() != TokenType.IDENTIFIER) {
-                System.out.println(i);
-            }
             assertEquals(TokenType.IDENTIFIER, actual.get(i).getType());
         }
     }

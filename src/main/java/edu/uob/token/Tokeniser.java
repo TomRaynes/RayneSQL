@@ -19,8 +19,6 @@ public class Tokeniser {
 
         for (int i=0; i<fragments.length; i++) {
 
-            if (fragments[i].isEmpty()) continue;
-
             if (i%2 != 0) tokens.add(new Token("'" + fragments[i] + "'"));
             else {
                 String[] nextBatchOfTokens = tokenise(fragments[i]);

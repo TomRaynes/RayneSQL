@@ -21,6 +21,7 @@ public class Table {
     public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;
         this.tableName = tableName;
+        this.nextID = 1;
     }
 
     public ArrayList<String> getAttributes(ArrayList<String> attributes) throws Exception {
@@ -31,9 +32,24 @@ public class Table {
         for (String attribute : attributes) {
             int index = getAttributeIndex(attribute);
             if (index < 0) throw new DBException.AttributeDoesNotExistException(attribute);
+            // Preserve the original case of the attributes
             selectedAttributes.add(this.attributes.get(index));
         }
         return selectedAttributes;
+    }
+
+    public Table getDeepCopy() throws Exception {
+
+        Table tableCopy = new Table(storageFolderPath, tableName);
+        tableCopy.setAttributes(new ArrayList<>(attributes));
+        tableCopy.tableRows = new ArrayList<>();
+
+        for (TableRow row : tableRows) {
+            ArrayList<String> rowCopy = row.getDeepCopy();
+            rowCopy.remove(0);
+            tableCopy.addRow(rowCopy);
+        }
+        return tableCopy;
     }
 
     public ArrayList<String> getNonKeyAttributes(int keyIndex) {
@@ -67,10 +83,6 @@ public class Table {
             }
             tableAttributes.put(attribute, attribute);
         }
-    }
-
-    public void initialiseIDs() {
-        nextID = 1;
     }
 
     public String getNextID() {
@@ -165,6 +177,7 @@ public class Table {
             attributes = getTableRow(line);
             tableRows = new ArrayList<>();
 
+            // read table rows
             while ((line = buffReader.readLine()) != null) {
                 List<String> rowData = getTableRow(line);
                 tableRows.add(new TableRow(rowData));
@@ -179,6 +192,10 @@ public class Table {
     private ArrayList<String> getTableRow(String line) {
 
         String[] row = line.split("\t");
+
+        for (int i=0; i<row.length; i++) {
+            if (Objects.equals(row[i], ".")) row[i] = "";
+        }
         return new ArrayList<>(Arrays.asList(row));
     }
 
@@ -223,7 +240,7 @@ public class Table {
         ArrayList<TableRow> rows = new ArrayList<>();
 
         // attribute existence is checked inside conditionSatisfied()
-        // so must check here if table has no rows
+        // so it must be checked here if table has no rows
         if (tableRows.isEmpty()) {
             ArrayList<Condition> conditions = ConditionNode.getAllSubConditions(node);
 

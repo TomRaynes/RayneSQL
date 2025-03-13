@@ -11,7 +11,11 @@ public class Token {
 
     public Token(String token) throws Exception {
         this.type = characteriseToken(token);
-        this.token = token;
+
+        if (type == TokenType.TRUE || type == TokenType.FALSE || type == TokenType.NULL) {
+            this.token = token.toUpperCase();
+        }
+        else this.token = token;
     }
 
     public TokenType getType() {
@@ -124,7 +128,6 @@ public class Token {
 
         for (int i=1; i<token.length()-1; i++) {
             if (!legalChars.contains(Character.toString(token.charAt(i)))) {
-                System.out.println(token.charAt(i));
                 return false;
             }
         }
