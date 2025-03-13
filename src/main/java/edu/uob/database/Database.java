@@ -57,6 +57,7 @@ public class Database {
 
             if (Objects.equals(tableNamePair.getTableName(), tableName)) {
                 tableNamePair.getTable().deleteTable();
+                tables.remove(tableNamePair);
                 return;
             }
         }

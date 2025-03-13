@@ -96,7 +96,8 @@ public class Table {
     public void addAttribute(String attribute) throws Exception {
 
         if (getAttributeIndex(attribute) >= 0) {
-            throw new DBException.AttributeAlreadyExistsException(attribute);
+            String tableAttribute = attributes.get(getAttributeIndex(attribute));
+            throw new DBException.AttributeAlreadyExistsException(tableAttribute);
         }
         if (attributes == null) attributes = new ArrayList<>();
         attributes.add(attribute);
@@ -109,8 +110,13 @@ public class Table {
     public void removeAttribute(String attribute) throws Exception {
 
         int attributeIndex = getAttributeIndex(attribute);
-        if (attributeIndex < 0) throw new DBException.AttributeDoesNotExistException(attribute);
-        if (attributeIndex == 0) throw new DBException.TryingToRemoveIdException();
+
+        if (attributeIndex < 0) {
+            throw new DBException.AttributeDoesNotExistException(attribute);
+        }
+        if (attributeIndex == 0) {
+            throw new DBException.TryingToRemoveIdException();
+        }
 
         attributes.remove(attributeIndex);
 
@@ -138,7 +144,9 @@ public class Table {
         for (String attribute : attributeList) {
             int index = getAttributeIndex(attribute);
 
-            if (index < 0) throw new DBException.AttributeDoesNotExistException(attribute);
+            if (index < 0) {
+                throw new DBException.AttributeDoesNotExistException(attribute);
+            }
             else indexes.add(index);
         }
         return indexes;

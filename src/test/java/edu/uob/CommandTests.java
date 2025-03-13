@@ -74,8 +74,27 @@ public class CommandTests {
         String expected = "[ERROR]\nDatabase '" + name + "' does not exist";
         assertEquals(expected, response);
         sendCommandToServer("CREATE DATABASE " + name + ";");
+        sendCommandToServer("USE " + name + ";");
+        sendCommandToServer("CREATE TABLE table1 (a, b, c);");
         response = sendCommandToServer("DROP DATABASE " + name + ";");
         assertEquals("[OK]", response, response);
+        response = sendCommandToServer("USE " + name + ";");
+        expected = "[ERROR]\nDatabase '" + name + "' does not exist";
+        assertEquals(expected, response);
+        // query a table from deleted database;
+        response = sendCommandToServer("SELECT * FROM table1;");
+        expected = """
+                [ERROR]
+                No database is currently loaded by the server
+                An existing database can be loaded with: 'USE [database name];'""";
+        assertEquals(expected, response);
+        // create table in deleted database
+        response = sendCommandToServer("CREATE TABLE table2;");
+        expected = """
+                [ERROR]
+                No database is currently loaded by the server
+                An existing database can be loaded with: 'USE [database name];'""";
+        assertEquals(expected, response);
     }
 
     @Test
@@ -88,9 +107,21 @@ public class CommandTests {
         String expected = "[ERROR]\nTable '" + tableName + "' does not exist in database '"
                 + databaseName + "'\nCreate a table with: 'CREATE [table name];'";
         assertEquals(expected, response);
-        sendCommandToServer("CREATE TABLE " + tableName + ";");
+        sendCommandToServer("CREATE TABLE " + tableName + " (a, b, c);");
         response = sendCommandToServer("DROP TABLE " + tableName + ";");
         assertEquals("[OK]", response);
+        // query data from deleted table
+        response = sendCommandToServer("INSERT INTO " + tableName + " VALUES (1, 2, 3);");
+        expected = "[ERROR]\n" +
+                "Table '" + tableName + "' does not exist in database '" + databaseName + "'\n" +
+                "Create a table with: 'CREATE [table name];'";
+        assertEquals(expected, response);
+
+        response = sendCommandToServer("SELECT * FROM " + tableName + ";");
+        expected = "[ERROR]\n" +
+                "Table '" + tableName + "' does not exist in database '" + databaseName + "'\n" +
+                "Create a table with: 'CREATE [table name];'";
+        assertEquals(expected, response);
     }
 
     @Test
@@ -114,6 +145,9 @@ public class CommandTests {
         // trying to remove id
         response = sendCommandToServer("ALTER TABLE " + tableName + " DROP id;");
         assertEquals("[ERROR]\nThe table attribute 'id' cannot be removed", response);
+        // try to add second id
+        response = sendCommandToServer("ALTER TABLE " + tableName + " ADD ID;");
+        assertEquals("[ERROR]\nThis table already has attribute 'id'", response);
         // duplicate attributes
         tableName = generateRandomName();
         response = sendCommandToServer("CREATE TABLE " + tableName + " (name, name);");

@@ -13,8 +13,12 @@ public class DropTableCommand extends Command {
     }
 
     public String execute(DBServer server) throws Exception {
+
         Database database = server.getActiveDatabase();
-        if (database == null) throw new DBException.NoActiveDatabaseException();
+
+        if (database == null) {
+            throw new DBException.NoActiveDatabaseException();
+        }
         database.loadDatabase();
         database.removeTable(tableName);
         return "";
