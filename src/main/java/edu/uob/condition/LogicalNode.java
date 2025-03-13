@@ -3,7 +3,7 @@ package edu.uob.condition;
 import edu.uob.token.TokenType;
 
 public class LogicalNode extends ConditionNode {
-    TokenType type;
+   private final TokenType type;
 
 
     public LogicalNode(TokenType type) {

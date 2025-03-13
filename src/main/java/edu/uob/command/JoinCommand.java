@@ -8,10 +8,10 @@ import java.util.ArrayList;
 
 public class JoinCommand extends Command {
 
-    String tableName1;
-    String tableName2;
-    String attribute1;
-    String attribute2;
+    private final String tableName1;
+    private final String tableName2;
+    private final String attribute1;
+    private final String attribute2;
 
     public JoinCommand(String tableName1, String tableName2, String attribute1, String attribute2) {
         this.tableName1 = tableName1;

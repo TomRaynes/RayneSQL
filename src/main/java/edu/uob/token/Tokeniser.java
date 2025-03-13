@@ -4,12 +4,13 @@ import java.util.ArrayList;
 
 public class Tokeniser {
 
-    String query;
-    String[] specialTokens = {"(", ")", ",", ";", "*", ">=", "==", "<=", "!="};
-    ArrayList<Token> tokens = new ArrayList<>();
+    private final String query;
+    private final String[] specialTokens = {"(", ")", ",", ";", "*", ">=", "==", "<=", "!="};
+    private final ArrayList<Token> tokens;
 
     public Tokeniser(String query) {
         this.query = query;
+        this.tokens = new ArrayList<>();
 
     }
 

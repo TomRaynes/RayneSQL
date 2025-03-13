@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 public class DeleteCommand extends Command {
 
-    String tableName;
-    ConditionNode condition;
+    private final String tableName;
+    private final ConditionNode condition;
 
     public DeleteCommand(String tableName, ConditionNode condition) {
         this.tableName = tableName;

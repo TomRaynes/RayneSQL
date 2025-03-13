@@ -1,7 +1,7 @@
 package edu.uob.database;
 
 public class ColumnEntry {
-    String entry;
+    private String entry;
 
     public ColumnEntry(String entry) {
         this.entry = entry;

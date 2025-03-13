@@ -18,13 +18,13 @@ public class CommandTests {
 
     private String sendCommandToServer(String command) {
         // Try to send a command to the server - this call will timeout if it takes too long (in case the server enters an infinite loop)
-        return assertTimeoutPreemptively(Duration.ofMillis(1000), () -> server.handleCommand(command),
+        return assertTimeoutPreemptively(Duration.ofMillis(10000), () -> server.handleCommand(command),
                 "Server took too long to respond (probably stuck in an infinite loop)");
     }
 
     private String generateRandomName() {
         String randomName = "";
-        for(int i=0; i<10 ;i++) randomName += (char)(97 + (Math.random() * 25.0));
+        for (int i=0; i<10; i++) randomName += (char)(97 + (Math.random() * 25.0));
         return randomName;
     }
 

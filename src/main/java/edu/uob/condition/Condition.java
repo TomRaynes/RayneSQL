@@ -8,9 +8,9 @@ import java.util.Objects;
 
 public class Condition extends ConditionNode {
 
-    String attribute;
-    Comparator comparator;
-    Token value;
+    private final String attribute;
+    private final Comparator comparator;
+    private final Token value;
 
     public Condition(String attribute, Comparator comparator, Token value) {
         this.attribute = attribute;

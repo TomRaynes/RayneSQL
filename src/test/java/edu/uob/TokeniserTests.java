@@ -131,7 +131,7 @@ public class TokeniserTests {
     public void testIntegerLiteralTokens() {
 
         assertTrue(getActual("0 1 2 3 4 5 6 7 8 9 23 " +
-                                    "5601 3940175480 +786 -152"));
+                                    "5601 3940175480 +786 -152 +1 -2"));
 
         for (int i=0; i<actual.size()-1; i++) {
             assertEquals(TokenType.INTEGER_LITERAL, actual.get(i).getType());

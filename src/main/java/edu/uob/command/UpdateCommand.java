@@ -11,9 +11,9 @@ import java.util.ArrayList;
 
 public class UpdateCommand extends Command {
 
-    String tableName;
-    ArrayList<NameValuePair> nameValuePairs;
-    ConditionNode condition;
+    private final String tableName;
+    private final ArrayList<NameValuePair> nameValuePairs;
+    private final ConditionNode condition;
 
     public UpdateCommand(String tableName, ArrayList<NameValuePair> nameValuePairs,
                          ConditionNode condition) {

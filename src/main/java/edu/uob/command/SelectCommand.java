@@ -9,9 +9,9 @@ import java.util.ArrayList;
 
 public class SelectCommand extends Command {
 
-    String tableName;
-    ArrayList<String> attributes;
-    ConditionNode condition;
+    private final String tableName;
+    private ArrayList<String> attributes;
+    private final ConditionNode condition;
 
     public SelectCommand(String tableName, ArrayList<String> attributes, ConditionNode condition) {
         this.tableName = tableName;

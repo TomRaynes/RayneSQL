@@ -10,9 +10,9 @@ import java.util.*;
 
 public class Database {
 
-    String storageFolderPath;
-    String databaseName;
-    ArrayList<TableNamePair> tables;
+    private final String storageFolderPath;
+    private final String databaseName;
+    private ArrayList<TableNamePair> tables;
 
     public Database(String storageFolderPath, String databaseName) {
 

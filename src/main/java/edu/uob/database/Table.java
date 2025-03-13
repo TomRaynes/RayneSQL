@@ -12,11 +12,11 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Table {
-    String storageFolderPath;
-    String tableName;
-    ArrayList<String> attributes;
-    ArrayList<TableRow> tableRows;
-    int nextID;
+    private final String storageFolderPath;
+    private final String tableName;
+    private ArrayList<String> attributes;
+    private ArrayList<TableRow> tableRows;
+    private int nextID;
 
     public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;

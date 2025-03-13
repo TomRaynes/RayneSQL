@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public abstract class ConditionNode {
 
-    ConditionNode leftChild = null;
-    ConditionNode rightChild = null;
+    protected ConditionNode leftChild = null;
+    protected ConditionNode rightChild = null;
 
     public ConditionNode getLeftChild() {
         return leftChild;
