@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class DBClient {
 
-    private static final char END_OF_TRANSMISSION = 4;
+    private static final String END_OF_TRANSMISSION = "\u0004";
 
     public static void main(String[] args) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -31,7 +31,7 @@ public class DBClient {
         if (incomingMessage == null) {
             throw new IOException("Server disconnected (end-of-stream)");
         }
-        while (incomingMessage != null && !incomingMessage.contains("" + END_OF_TRANSMISSION + "")) {
+        while (incomingMessage != null && !incomingMessage.contains(END_OF_TRANSMISSION)) {
             System.out.println(incomingMessage);
             incomingMessage = socketReader.readLine();
         }
