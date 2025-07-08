@@ -27,6 +27,7 @@ public class DBClient {
         socketWriter.write(command + "\n");
         socketWriter.flush();
         String incomingMessage = socketReader.readLine();
+
         if (incomingMessage == null) {
             throw new IOException("Server disconnected (end-of-stream)");
         }
