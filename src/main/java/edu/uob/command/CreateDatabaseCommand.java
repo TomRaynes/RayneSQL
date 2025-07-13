@@ -3,6 +3,8 @@ package edu.uob.command;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
 
+import java.net.SocketAddress;
+
 public class CreateDatabaseCommand extends Command {
 
     private final String databaseName;
@@ -11,7 +13,7 @@ public class CreateDatabaseCommand extends Command {
         this.databaseName = databaseName;
     }
 
-    public String execute(DBServer server) throws Exception {
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
         Database database = new Database(server.getStorageFolderPath(), databaseName);
         database.createDirectory();
         return "";

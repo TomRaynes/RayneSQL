@@ -5,6 +5,8 @@ import edu.uob.database.Table;
 import edu.uob.token.Token;
 import edu.uob.token.TokenType;
 
+import java.net.SocketAddress;
+
 public class AlterCommand extends Command {
 
     private final String tableName;
@@ -17,9 +19,9 @@ public class AlterCommand extends Command {
         this.attribute = attribute;
     }
 
-    public String execute(DBServer server) throws Exception {
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
-        Table table = getTable(server, tableName);
+        Table table = getTable(server, tableName, socketAddress);
         table.loadTableData();
 
         if (alterationType.getType() == TokenType.ADD) {

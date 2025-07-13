@@ -4,20 +4,22 @@ import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.*;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public abstract class Command {
 
-    public abstract String execute(DBServer server) throws Exception;
+    public abstract String execute(DBServer server, SocketAddress socketAddress) throws Exception;
     public abstract String getClassAttributes();
 
-    protected static Table getTable(DBServer server, String tableName) throws Exception {
+    protected static Table getTable(DBServer server, String tableName, SocketAddress socketAddress) throws Exception {
 
-        Database database = server.getActiveDatabase();
+        Database database = server.getActiveDatabase(socketAddress);
 
         if (database == null) {
             throw new DBException.NoActiveDatabaseException();
         }
+        database.loadDatabase();
         Table table = database.getTable(tableName);
 
         if (table == null) {
@@ -75,9 +77,9 @@ public abstract class Command {
 
     protected static String listToString(ArrayList<String> strings) {
 
-        String str = "";
-        for (String string : strings) str += ", " + string;
-        return str;
+        StringBuilder str = new StringBuilder();
+        for (String string : strings) str.append(", ").append(string);
+        return str.toString();
     }
 }
 

@@ -3,6 +3,9 @@ package edu.uob;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,22 +13,33 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CommandTests {
 
     private DBServer server;
+    private SocketAddress socketAddress = null;
+
 
     @BeforeEach
     public void setup() {
         server = new DBServer();
+
+        try (Socket socket = new Socket()) {
+            socketAddress = socket.getLocalSocketAddress();
+            server.setActiveDatabase(null, socketAddress);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String sendCommandToServer(String command) {
-        // Try to send a command to the server - this call will timeout if it takes too long (in case the server enters an infinite loop)
-        return assertTimeoutPreemptively(Duration.ofMillis(10000), () -> server.handleCommand(command),
-                "Server took too long to respond (probably stuck in an infinite loop)");
+        return assertTimeoutPreemptively(Duration.ofMillis(10000), () ->
+                        server.handleCommand(command, socketAddress)
+                        .replaceAll("\u001B\\[[;\\d]*m", ""),
+                "Server took too long to respond");
     }
 
     private String generateRandomName() {
-        String randomName = "";
-        for (int i=0; i<10; i++) randomName += (char)(97 + (Math.random() * 25.0));
-        return randomName;
+        StringBuilder randomName = new StringBuilder();
+        for (int i=0; i<10; i++) randomName.append((char) (97 + (Math.random() * 25.0)));
+        return randomName.toString();
     }
 
     @Test
@@ -85,14 +99,14 @@ public class CommandTests {
         response = sendCommandToServer("SELECT * FROM table1;");
         expected = """
                 [ERROR]
-                No database is currently loaded by the server
+                No database is currently loaded
                 An existing database can be loaded with: 'USE [database name];'""";
         assertEquals(expected, response);
         // create table in deleted database
         response = sendCommandToServer("CREATE TABLE table2;");
         expected = """
                 [ERROR]
-                No database is currently loaded by the server
+                No database is currently loaded
                 An existing database can be loaded with: 'USE [database name];'""";
         assertEquals(expected, response);
     }

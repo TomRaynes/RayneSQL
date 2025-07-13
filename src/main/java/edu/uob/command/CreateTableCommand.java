@@ -4,6 +4,7 @@ import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class CreateTableCommand extends Command {
@@ -16,8 +17,8 @@ public class CreateTableCommand extends Command {
         this.attributes = attributes;
     }
 
-    public String execute(DBServer server) throws Exception {
-        Database database = server.getActiveDatabase();
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
+        Database database = server.getActiveDatabase(socketAddress);
         if (database == null) throw new DBException.NoActiveDatabaseException();
         database.loadDatabase();
         database.addTable(tableName, attributes);

@@ -6,29 +6,44 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.time.Duration;
 
 public class ExampleDBTests {
 
     private DBServer server;
+    private SocketAddress socketAddress = null;
 
-    // Create a new server _before_ every @Test
     @BeforeEach
     public void setup() {
         server = new DBServer();
+
+        try (Socket socket = new Socket()) {
+            socketAddress = socket.getLocalSocketAddress();
+            server.setActiveDatabase(null, socketAddress);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    // Random name generator - useful for testing "bare earth" queries (i.e. where tables don't previously exist)
     private String generateRandomName() {
-        String randomName = "";
-        for(int i=0; i<10 ;i++) randomName += (char)( 97 + (Math.random() * 25.0));
-        return randomName;
+        StringBuilder randomName = new StringBuilder();
+
+        for(int i=0; i<10 ;i++) {
+            randomName.append((char) (97 + (Math.random() * 25.0)));
+        }
+        return randomName.toString();
     }
 
     private String sendCommandToServer(String command) {
-        // Try to send a command to the server - this call will timeout if it takes too long (in case the server enters an infinite loop)
-        return assertTimeoutPreemptively(Duration.ofMillis(1000), () -> { return server.handleCommand(command);},
-        "Server took too long to respond (probably stuck in an infinite loop)");
+
+        return assertTimeoutPreemptively(Duration.ofMillis(1000), () -> server.handleCommand(command, socketAddress)
+                        .replaceAll("\u001B\\[[;\\d]*m", ""),
+        "Server took too long to respond");
     }
 
     // A basic test that creates a database, creates a table, inserts some test data, then queries it.

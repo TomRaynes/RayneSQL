@@ -4,6 +4,7 @@ import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class JoinCommand extends Command {
@@ -20,9 +21,9 @@ public class JoinCommand extends Command {
         this.attribute2 = attribute2;
     }
 
-    public String execute(DBServer server) throws Exception {
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
-        Database database = server.getActiveDatabase();
+        Database database = server.getActiveDatabase(socketAddress);
 
         if (database == null) {
             throw new DBException.NoActiveDatabaseException();

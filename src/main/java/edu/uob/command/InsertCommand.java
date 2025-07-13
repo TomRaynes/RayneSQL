@@ -3,6 +3,7 @@ package edu.uob.command;
 import edu.uob.DBServer;
 import edu.uob.database.Table;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class InsertCommand extends Command {
@@ -16,9 +17,9 @@ public class InsertCommand extends Command {
 
     }
 
-    public String execute(DBServer server) throws Exception {
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
-        Table table = getTable(server, tableName);
+        Table table = getTable(server, tableName, socketAddress);
         table.loadTableData();
         table.addRow(values);
         table.saveTable();

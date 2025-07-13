@@ -4,6 +4,8 @@ import edu.uob.DBException;
 import edu.uob.DBServer;
 import edu.uob.database.Database;
 
+import java.net.SocketAddress;
+
 public class UseCommand extends Command {
 
     private final String databaseName;
@@ -12,7 +14,7 @@ public class UseCommand extends Command {
         this.databaseName = databaseName;
     }
 
-    public String execute(DBServer server) throws Exception
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception
     {
         Database database = new Database(server.getStorageFolderPath(), databaseName);
 
@@ -20,7 +22,7 @@ public class UseCommand extends Command {
             throw new DBException.DatabaseDoesNotExistException(databaseName);
         }
         database.loadDatabase();
-        server.setActiveDatabase(database);
+        server.setActiveDatabase(database, socketAddress);
         return "";
     }
 

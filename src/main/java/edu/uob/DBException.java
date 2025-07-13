@@ -23,19 +23,19 @@ public abstract class DBException extends Exception {
 
         public static String createErrorMessage(TokenType actual, TokenType... expected) {
 
-            String str = "";
+            StringBuilder str = new StringBuilder();
             ArrayList<String> tokens = new ArrayList<>();
             for (TokenType token : expected) tokens.add(token.toString());
 
             if (tokens.size() == 1) {
-                str = "'" + tokens.get(0) + "'";
+                str = new StringBuilder("'" + tokens.get(0) + "'");
             }
             else {
                 for (int i=0; i<tokens.size(); i++) {
 
-                    if (i < tokens.size()-2) str += "'" + tokens.get(i) + "', ";
-                    else if (i == tokens.size()-2) str += "'" + tokens.get(i) + "' ";
-                    else if (i == tokens.size()-1) str += "or '" + tokens.get(i) + "'";
+                    if (i < tokens.size()-2) str.append("'").append(tokens.get(i)).append("', ");
+                    else if (i == tokens.size()-2) str.append("'").append(tokens.get(i)).append("' ");
+                    else if (i == tokens.size()-1) str.append("or '").append(tokens.get(i)).append("'");
                 }
             }
             return "Expected token " + str + " but found '" + actual.toString() + "'";
@@ -86,7 +86,7 @@ public abstract class DBException extends Exception {
         @Serial private static final long serialVersionUID = 1;
 
         public NoActiveDatabaseException() {
-            super("No database is currently loaded by the server\n" +
+            super("No database is currently loaded\n" +
                     "An existing database can be loaded with: 'USE [database name];'");
 
         }

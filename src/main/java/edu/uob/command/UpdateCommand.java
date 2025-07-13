@@ -7,6 +7,7 @@ import edu.uob.condition.ConditionNode;
 import edu.uob.database.Table;
 import edu.uob.database.TableRow;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 
 public class UpdateCommand extends Command {
@@ -22,9 +23,9 @@ public class UpdateCommand extends Command {
         this.condition = condition;
     }
 
-    public String execute(DBServer server) throws Exception {
+    public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
-        Table table = getTable(server, tableName);
+        Table table = getTable(server, tableName, socketAddress);
         table.loadTableData();
         ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
 
@@ -47,8 +48,8 @@ public class UpdateCommand extends Command {
 
     public String getClassAttributes() {
 
-        String nameValList = "";
-        for (NameValuePair pair : nameValuePairs) nameValList += ", " + pair.toString();
+        StringBuilder nameValList = new StringBuilder();
+        for (NameValuePair pair : nameValuePairs) nameValList.append(", ").append(pair.toString());
         return tableName + nameValList + ", " + ConditionNode.getTreeAsString(condition);
     }
 }
