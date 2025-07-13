@@ -32,6 +32,11 @@
             <version>1.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.25.0</version>
+        </dependency>
     </dependencies>
 
     <build>

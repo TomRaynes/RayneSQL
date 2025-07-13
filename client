@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "Starting client..."
+
+./mvnw clean compile exec:java@client | while IFS= read -r line; do
+    if [[ "$line" == *"\n\n"* ]]; then
+        echo "$line"
+        # From now on, print all further output
+        while IFS= read -r next_line; do
+            echo "$next_line"
+        done
+        break
+    fi
+done

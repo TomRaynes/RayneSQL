@@ -40,7 +40,8 @@ public class DBServer {
             \u001B[31m| |_) / _` | | | | '_ \\ / _ \u001B[97m\\___ \\| | | | |   \s
             \u001B[31m|  _ < (_| | |_| | | | |  __/\u001B[97m___) | |_| | |___\s
             \u001B[31m|_| \\_\\__,_|\\__, |_| |_|\\___\u001B[97m|____/ \\__\\_\\_____|
-            \u001B[31m            |___/                              \u001B[0m""";
+            \u001B[31m            |___/                              \u001B[0m
+            \s""";
 
     public static void main(String[] args) throws IOException {
         DBServer server = new DBServer();
@@ -153,7 +154,7 @@ public class DBServer {
             BufferedWriter writer = socketWriters.get(socketAddress);
 
             try {
-                writer.write("\n" + YELLOW + message + RESET);
+                writer.write(YELLOW + message + RESET);
                 writer.write(END_OF_TRANSMISSION + "\n");
                 writer.flush();
             }
