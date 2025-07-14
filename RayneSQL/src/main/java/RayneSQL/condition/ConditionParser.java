@@ -49,7 +49,7 @@ public final class ConditionParser {
     }
 
     private static LogicalNode findLogicalTokens(ArrayList<Token> tokens) throws Exception {
-
+// (population>300000 AND population<500000) OR (region=='South East' OR (name LIKE 'ingham' AND region!='West Midlands'))
         int nestingLevel = 0;
         Token logicalToken = null;
 
@@ -87,35 +87,39 @@ public final class ConditionParser {
     }
 
     private static boolean removeOuterBrackets(ArrayList<Token> tokens) throws Exception {
+        if (tokens.size() < 3) { // i.e. '(', ')', 'EOT'
+            return false;
+        }
 
-        int index = 0;
-        if (tokens.get(index++).getType() != TokenType.OPEN_BRACKET) return false;
+        int lastTokenIndex = tokens.size() - 1; // EOT
+        TokenType firstType = tokens.get(0).getType();
+        TokenType lastType = tokens.get(lastTokenIndex - 1).getType();
 
-        boolean insideBracket = false;
+        if (firstType != TokenType.OPEN_BRACKET || lastType != TokenType.CLOSE_BRACKET) {
+            return false;
+        }
         int nestingLevel = 0;
 
-        for (; index<tokens.size()-2; index++) {
+        // Check bracket balance
+        for (int i = 1; i < lastTokenIndex - 1; i++) {
+            TokenType type = tokens.get(i).getType();
 
-            if (tokens.get(index).getType() == TokenType.OPEN_BRACKET) {
+            if (type == TokenType.OPEN_BRACKET) {
                 nestingLevel++;
-                insideBracket = true;
             }
-            else if (tokens.get(index).getType() == TokenType.CLOSE_BRACKET) {
-                if (--nestingLevel == 0) insideBracket = false;
-            }
-        }
-        if (tokens.get(index).getType() == TokenType.CLOSE_BRACKET) {
-
-            if (!insideBracket) {
-                tokens.remove(0);
-                tokens.remove(--index);
-                return true;
-            }
-            else if (nestingLevel != 0) {
-                throw new DBException.UnpairedBracketInConditionException();
+            else if (type == TokenType.CLOSE_BRACKET) {
+                if (nestingLevel == 0) {
+                    return false;
+                }
+                nestingLevel--;
             }
         }
-        return false;
+        if (nestingLevel != 0) {
+            throw new DBException.UnpairedBracketInConditionException();
+        }
+        tokens.remove(lastTokenIndex - 1); // remove last close bracket
+        tokens.remove(0); // remove first open bracket
+        return true;
     }
 
     private static void expectTokenType(ArrayList<Token> tokens, int index,
