@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +28,7 @@ public class DBServer {
     private static final String END_OF_TRANSMISSION = "\u0004";
     private final String storageFolderPath;
     private final ExecutorService socketThreads = Executors.newCachedThreadPool();
+    private final Map<String, Database> loadedDatabases;
     private final HashMap<SocketAddress, Database> activeDatabases;
     private final ConcurrentHashMap<SocketAddress, BufferedWriter> socketWriters;
     private static final String RED = "\u001B[31m";
@@ -50,6 +52,7 @@ public class DBServer {
 
     public DBServer() {
         storageFolderPath = Paths.get("databases").toAbsolutePath().toString();
+        loadedDatabases = new HashMap<>();
         activeDatabases = new HashMap<>();
         socketWriters = new ConcurrentHashMap<>();
 
@@ -87,6 +90,23 @@ public class DBServer {
 
     public Database getActiveDatabase(SocketAddress socketAddress) {
         return activeDatabases.get(socketAddress);
+    }
+
+    public Database getLoadedDatabase(String databaseName) {
+        return loadedDatabases.get(databaseName);
+    }
+
+    public void trackDatabase(Database database) {
+        loadedDatabases.put(database.getDatabaseName(), database);
+    }
+
+    public void untrackDatabase(Database database) {
+        loadedDatabases.remove(database.getDatabaseName());
+    }
+
+    public boolean databaseInactive(String targetName) {
+        return activeDatabases.values().stream().filter(Objects::nonNull)
+                .anyMatch(db -> targetName.equals(db.getDatabaseName()));
     }
 
     public void setActiveDatabase(Database database, SocketAddress socketAddress) {

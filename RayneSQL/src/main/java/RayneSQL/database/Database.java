@@ -112,7 +112,7 @@ public class Database {
     }
 
     public void loadDatabase() throws Exception {
-        tables = getTablesFromDatabaseFolder();
+        executeUnderReadLock(() -> tables = getTablesFromDatabaseFolder());
     }
 
     public boolean databaseExists() {
