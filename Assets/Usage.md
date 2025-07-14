@@ -1,51 +1,51 @@
 # RayneSQL Usage
 
 ### 1. `CREATE` and `USE` a  database
-```
-CREATE DATABASE NewDatabase;  
+```sql
+CREATE DATABASE data;  
 [OK]
-USE NewDatabase;
+USE data;
 [OK]
 ```
 
 ### 2. `CREATE` a table
 Create an empty table:
-```
+```sql
 CREATE TABLE employees;
 [OK]
 ```
 Or specify columns:
-```
+```sql
 CREATE TABLE employees (Name, Department, Salary);
 [OK]
 ```
 
 ### 3. `INSERT` into a table
 If columns were specified:
-```
+```sql
 INSERT INTO employees VALUES ('John', 'IT', 50000);
 [OK]
 INSERT INTO employees VALUES ('Paul', 'Sales', '30000');
 [OK]
 INSERT INTO employees VALUES ('George', 'IT', '80000');
 [OK]
-INSERT INTO employees VALUES ('Ringo', 'Finace', '120000');
+INSERT INTO employees VALUES ('Ringo', 'Finance', '120000');
 [OK]
 ```
 
 ### 4. `SELECT` data from a table
 Select all data:
-```
+```sql
 SELECT * FROM employees;
 [OK]
 id   Name     Department   Salary   
 1    John     IT           50000    
 2    Paul     Sales        30000    
 3    George   IT           80000    
-4    Ringo    Finace       120000
+4    Ringo    Finance      120000
 ```
 Select data that satisfies a condition:
-```
+```sql
 SELECT * FROM employees WHERE department=='IT';
 [OK]
 id   Name     Department   Salary   
@@ -64,7 +64,7 @@ id   Name     Department   Salary
 3    George   IT           80000    
 ```
 Select specific columns:
-```
+```sql
 SELECT name, id FROM employees WHERE department!='Sales';
 [OK]
 Name     id   
@@ -72,36 +72,90 @@ John     1
 George   3    
 Ringo    4    
 ```
-Any complex condition is supported
-e.g., Given the table of cities:
+### 5. `ALTER` a table's column structure
+Add a column:
+```sql
+ALTER TABLE employees ADD Age;
+[OK]
+SELECT * FROM employees;
+[OK]
+id   Name     Department   Salary   Age    
+1    John     IT           50000    NULL   
+2    Paul     Sales        30000    NULL   
+3    George   IT           80000    NULL   
+4    Ringo    Finance      120000   NULL   
 ```
-id   Name         Population   Country       Region             
-1    London       7556900      UK            South East         
-2    Manchester   395515       UK            North West         
-3    Birmingham   984333       UK            West Midlands      
-4    Liverpool    864122       UK            North West         
-5    Bristol      617280       UK            South West         
-6    Sheffield    685368       UK            North              
-7    Nottingham   729977       UK            Midlands           
-8    Glasgow      591620       UK            Scotland           
-9    Edinburgh    464990       UK            Scotland           
-10   Cardiff      447287       UK            Wales              
-11   Leicester    508916       UK            Midlands           
-12   Leeds        455123       UK            North              
-13   Belfast      274770       UK            Northern Ireland   
-14   Paris        2103000      France        NULL               
-15   Berlin       3432000      Germany       NULL               
-16   Rome         2760000      Italy         NULL               
-17   Madrid       3277000      Spain         NULL               
-18   Amsterdam    921400       Netherlands   NULL               
-```
-```
-
-```
-
-
-
+Remove a column:
+```sql
+ALTER TABLE employees DROP Age;
+[OK]
+SELECT * FROM employees;
+[OK]
+id   Name     Department   Salary   
+1    John     IT           50000    
+2    Paul     Sales        30000    
+3    George   IT           80000    
+4    Ringo    Finance      120000   
 
 ```
+### 6. `UPDATE` a table's data
+```sql
+UPDATE employees SET department='Finance' WHERE name=='George';
+[OK]
+SQL:> SELECT * FROM employees;
+[OK]
+id   Name     Department   Salary   
+1    John     IT           50000    
+2    Paul     Sales        30000    
+3    George   Finance      80000    
+4    Ringo    Finance      120000
+```
 
+### 7. `DELETE` a table row
+```sql
+DELETE FROM employees WHERE id==1;
+[OK]
+SELECT * FROM employees;
+[OK]
+id   Name     Department   Salary   
+2    Paul     Sales        30000    
+3    George   Finance      80000    
+4    Ringo    Finance      120000   
+```
+
+### 8. `JOIN` tables
+Given the tables 'transactions' and 'accounts':
+```sql
+          transactions                                  accounts
+id   AccountNumber   Date                       id   Name      Number     
+1    34574246        30/10/1971                 1    Roger     90182061   
+2    90182061        1/3/1973                   2    David     34574246   
+3    15579109        12/9/1975                  3    Richard   15579109   
+4    61425454        21/1/1977                  4    Nick      61425454
+5    34574246        30/11/1979   
+6    90182061        21/3/1983
+```
+To join these tables on AccountNumber and number:
+```sql
+JOIN transactions AND accounts ON AccountNumber AND number;
+[OK]
+id   transactions.Date   accounts.Name   
+1    1/3/1973            Roger           
+2    21/3/1983           Roger           
+3    30/10/1971          David           
+4    30/11/1979          David           
+5    12/9/1975           Richard         
+6    21/1/1977           Nick            
+```
+
+### 9. `DROP` a table from the active database
+```sql
+DROP TABLE accounts;
+[OK]
+```
+
+### 10. `DROP` a database
+```sql
+DROP DATABASE data;
+[OK]
 ```
