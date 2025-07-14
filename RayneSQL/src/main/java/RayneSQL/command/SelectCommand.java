@@ -20,19 +20,20 @@ public class SelectCommand extends Command {
     }
 
     public String execute(RayneSQL.DBServer server, SocketAddress socketAddress) throws Exception {
-
         Table table = getTable(server, tableName, socketAddress);
-        table.loadTableData();
-        ArrayList<TableRow> rows;
+        table.executeUnderWriteLock(table::loadTableData);
+        return table.executeUnderReadLock(() -> {
+            ArrayList<TableRow> rows;
 
-        attributes = table.getAttributes(attributes);
-        if (condition == null) rows = table.getTableRows();
-        else rows = table.getRowsFromCondition(condition);
+            attributes = table.getAttributes(attributes);
+            if (condition == null) rows = table.getTableRows();
+            else rows = table.getRowsFromCondition(condition);
 
-        ArrayList<Integer> attributeIndexes = table.getAttributeIndexes(attributes);
-        ArrayList<ArrayList<String>> selectedData = getSelectedData(attributes,
-                                                            rows, attributeIndexes);
-        return getReturnString(selectedData);
+            ArrayList<Integer> attributeIndexes = table.getAttributeIndexes(attributes);
+            ArrayList<ArrayList<String>> selectedData = getSelectedData(attributes,
+                    rows, attributeIndexes);
+            return getReturnString(selectedData);
+        });
     }
 
     public String getClassAttributes() {

@@ -10,6 +10,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Table {
     private final String storageFolderPath;
@@ -17,11 +20,30 @@ public class Table {
     private ArrayList<String> attributes;
     private ArrayList<TableRow> tableRows;
     private int nextID;
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     public Table(String storageFolderPath, String tableName) {
         this.storageFolderPath = storageFolderPath;
         this.tableName = tableName;
         this.nextID = 1;
+    }
+
+    public <T> T executeUnderReadLock(CheckedRunnable.TypeRunnable<T> task) throws Exception {
+        return CheckedRunnable.executeUnderLock(readLock, task);
+    }
+
+    public void executeUnderWriteLock(CheckedRunnable.VoidRunnable task) throws Exception {
+        CheckedRunnable.executeUnderLock(writeLock, task);
+    }
+
+    public <T> T executeUnderWriteLock(CheckedRunnable.TypeRunnable<T> task) throws Exception {
+        return CheckedRunnable.executeUnderLock(writeLock, task);
+    }
+
+    public Lock getReadLock() {
+        return readLock;
     }
 
     public ArrayList<String> getAttributes(ArrayList<String> attributes) throws Exception {

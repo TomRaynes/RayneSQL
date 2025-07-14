@@ -19,8 +19,8 @@ public class CreateTableCommand extends Command {
     public String execute(RayneSQL.DBServer server, SocketAddress socketAddress) throws Exception {
         Database database = server.getActiveDatabase(socketAddress);
         if (database == null) throw new DBException.NoActiveDatabaseException();
-        database.loadDatabase();
-        database.addTable(tableName, attributes);
+        database.executeUnderReadLock(database::loadDatabase);
+        database.executeUnderWriteLock(() -> database.addTable(tableName, attributes));
         return "";
     }
 

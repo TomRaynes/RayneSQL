@@ -25,23 +25,25 @@ public class UpdateCommand extends Command {
     public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
         Table table = getTable(server, tableName, socketAddress);
-        table.loadTableData();
-        ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
+        table.executeUnderWriteLock(() -> {
+            table.loadTableData();
+            ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
 
-        for (NameValuePair pair : nameValuePairs) {
-            int index = table.getAttributeIndex(pair.getAttribute());
+            for (NameValuePair pair : nameValuePairs) {
+                int index = table.getAttributeIndex(pair.getAttribute());
 
-            if (index < 0) {
-                throw new RayneSQL.DBException.AttributeDoesNotExistException(pair.getAttribute());
+                if (index < 0) {
+                    throw new RayneSQL.DBException.AttributeDoesNotExistException(pair.getAttribute());
+                }
+                if (index == 0) {
+                    throw new RayneSQL.DBException.TryingToChangeIdException();
+                }
+                for (TableRow row : rows) {
+                    row.setEntryFromIndex(index, pair.getValue().toString());
+                }
             }
-            if (index == 0) {
-                throw new RayneSQL.DBException.TryingToChangeIdException();
-            }
-            for (TableRow row : rows) {
-                row.setEntryFromIndex(index, pair.getValue().toString());
-            }
-        }
-        table.saveTable();
+            table.saveTable();
+        });
         return "";
     }
 

@@ -19,9 +19,11 @@ public class InsertCommand extends Command {
     public String execute(RayneSQL.DBServer server, SocketAddress socketAddress) throws Exception {
 
         Table table = getTable(server, tableName, socketAddress);
-        table.loadTableData();
-        table.addRow(values);
-        table.saveTable();
+        table.executeUnderWriteLock(() -> {
+            table.loadTableData();
+            table.addRow(values);
+            table.saveTable();
+        });
         return "";
     }
 

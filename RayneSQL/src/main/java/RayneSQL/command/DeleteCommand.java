@@ -20,13 +20,15 @@ public class DeleteCommand extends Command {
     public String execute(RayneSQL.DBServer server, SocketAddress socketAddress) throws Exception {
 
         Table table = getTable(server, tableName, socketAddress);
-        table.loadTableData();
-        ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
+        table.executeUnderWriteLock(() -> {
+            table.loadTableData();
+            ArrayList<TableRow> rows = table.getRowsFromCondition(condition);
 
-        for (TableRow row : rows) {
-            table.removeRow(row);
-        }
-        table.saveTable();
+            for (TableRow row : rows) {
+                table.removeRow(row);
+            }
+            table.saveTable();
+        });
         return "";
     }
 

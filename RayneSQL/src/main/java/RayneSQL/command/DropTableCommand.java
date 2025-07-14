@@ -20,8 +20,10 @@ public class DropTableCommand extends Command {
         if (database == null) {
             throw new RayneSQL.DBException.NoActiveDatabaseException();
         }
-        database.loadDatabase();
-        database.removeTable(tableName);
+        database.executeUnderWriteLock(() -> {
+            database.loadDatabase();
+            database.removeTable(tableName);
+        });
         return "";
     }
 

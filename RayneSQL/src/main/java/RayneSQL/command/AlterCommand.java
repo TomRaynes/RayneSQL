@@ -22,15 +22,17 @@ public class AlterCommand extends Command {
     public String execute(DBServer server, SocketAddress socketAddress) throws Exception {
 
         Table table = getTable(server, tableName, socketAddress);
-        table.loadTableData();
+        return table.executeUnderWriteLock(() -> {
+            table.loadTableData();
 
-        if (alterationType.getType() == TokenType.ADD) {
-            table.addAttribute(attribute);
-        }
-        else table.removeAttribute(attribute);
+            if (alterationType.getType() == TokenType.ADD) {
+                table.addAttribute(attribute);
+            }
+            else table.removeAttribute(attribute);
 
-        table.saveTable();
-        return "";
+            table.saveTable();
+            return "";
+        });
     }
 
     public String getClassAttributes() {

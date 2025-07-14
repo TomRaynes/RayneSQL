@@ -6,17 +6,35 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Database {
 
     private final String storageFolderPath;
     private final String databaseName;
     private ArrayList<TableNamePair> tables;
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     public Database(String storageFolderPath, String databaseName) {
 
         this.storageFolderPath = storageFolderPath;
         this.databaseName = databaseName;
+    }
+
+    public void executeUnderWriteLock(CheckedRunnable.VoidRunnable task) throws Exception {
+        CheckedRunnable.executeUnderLock(writeLock, task);
+    }
+
+    public void executeUnderReadLock(CheckedRunnable.VoidRunnable task) throws Exception {
+        CheckedRunnable.executeUnderLock(readLock, task);
+    }
+
+    public <T> T executeUnderWriteLock(CheckedRunnable.TypeRunnable<T> task) throws Exception {
+        return CheckedRunnable.executeUnderLock(writeLock, task);
     }
 
     public void deleteDatabase() throws Exception {
@@ -139,6 +157,7 @@ public class Database {
 
         Table table1 = getTable(command.getTableName1());
         Table table2 = getTable(command.getTableName2());
+        boolean tablesAreDistinct = true;
 
         if (table1 == null) {
             throw new RayneSQL.DBException.TableDoesNotExistException(command.getTableName1(), databaseName);
@@ -146,41 +165,55 @@ public class Database {
         if (table2 == null) {
             throw new RayneSQL.DBException.TableDoesNotExistException(command.getTableName2(), databaseName);
         }
-        table1.loadTableData();
-        table2.loadTableData();
+        table1.getReadLock().lock();
+        table2.getReadLock().lock();
 
-        if (Objects.equals(table1, table2)) table2 = table1.getDeepCopy();
+        try {
+            table1.loadTableData();
+            table2.loadTableData();
 
-        ArrayList<TableRow> rows1 = table1.getTableRows();
-        ArrayList<TableRow> rows2 = table2.getTableRows();
+            if (Objects.equals(table1, table2)) {
+                tablesAreDistinct = false;
+                table2 = table1.getDeepCopy();
+            }
 
-        // Indexes of the rows that the tables are join on
-        int keyIndex1 = table1.getAttributeIndex(command.getAttribute1());
-        int keyIndex2 = table2.getAttributeIndex(command.getAttribute2());
+            ArrayList<TableRow> rows1 = table1.getTableRows();
+            ArrayList<TableRow> rows2 = table2.getTableRows();
 
-        if (keyIndex1 < 0) {
-            throw new RayneSQL.DBException.AttributeDoesNotExistException(command.getAttribute1());
+            // Indexes of the rows that the tables are join on
+            int keyIndex1 = table1.getAttributeIndex(command.getAttribute1());
+            int keyIndex2 = table2.getAttributeIndex(command.getAttribute2());
+
+            if (keyIndex1 < 0) {
+                throw new RayneSQL.DBException.AttributeDoesNotExistException(command.getAttribute1());
+            }
+            if (keyIndex2 < 0) {
+                throw new RayneSQL.DBException.AttributeDoesNotExistException(command.getAttribute2());
+            }
+
+            ArrayList<ArrayList<String>> joinedTable = getJoinedTableRows(rows1, keyIndex1,
+                    rows2, keyIndex2);
+
+            // Add attributes to first row
+            ArrayList<String> attributes = table1.getNonKeyAttributes(keyIndex1);
+            attributes.addAll(table2.getNonKeyAttributes(keyIndex2));
+            joinedTable.add(0, attributes);
+
+            int id = 0;
+            // Add new id column
+            for (ArrayList<String> row : joinedTable) {
+                row.add(0, Integer.toString(id++));
+            }
+            joinedTable.get(0).set(0, "id");
+
+            return joinedTable;
         }
-        if (keyIndex2 < 0) {
-            throw new RayneSQL.DBException.AttributeDoesNotExistException(command.getAttribute2());
+        finally {
+            if (tablesAreDistinct) {
+                table2.getReadLock().unlock();
+            }
+            table1.getReadLock().unlock();
         }
-
-        ArrayList<ArrayList<String>> joinedTable = getJoinedTableRows(rows1, keyIndex1,
-                                                                      rows2, keyIndex2);
-
-        // Add attributes to first row
-        ArrayList<String> attributes = table1.getNonKeyAttributes(keyIndex1);
-        attributes.addAll(table2.getNonKeyAttributes(keyIndex2));
-        joinedTable.add(0, attributes);
-
-        int id = 0;
-        // Add new id column
-        for (ArrayList<String> row : joinedTable) {
-            row.add(0, Integer.toString(id++));
-        }
-        joinedTable.get(0).set(0, "id");
-
-        return joinedTable;
     }
 
     private ArrayList<ArrayList<String>> getJoinedTableRows(ArrayList<TableRow> rows1,

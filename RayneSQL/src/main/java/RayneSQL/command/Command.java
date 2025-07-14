@@ -19,8 +19,8 @@ public abstract class Command {
         if (database == null) {
             throw new DBException.NoActiveDatabaseException();
         }
-        database.loadDatabase();
-        Table table = database.getTable(tableName);
+        database.executeUnderReadLock(database::loadDatabase);
+        Table table = database.executeUnderWriteLock(() -> database.getTable(tableName));
 
         if (table == null) {
             throw new DBException.TableDoesNotExistException(tableName, database.getDatabaseName());
