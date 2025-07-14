@@ -35,12 +35,12 @@ public class DBServer {
     private static final String BOLD = "\u001B[1m";
     private static final String RESET = "\u001B[0m";
     private static final String asciiArtLogo = """
-            \u001B[1m\u001B[31m ____                        \u001B[97m____   ___  _    \s
-            \u001B[31m|  _ \\ __ _ _   _ _ __   ___\u001B[97m/ ___| / _ \\| |   \s
-            \u001B[31m| |_) / _` | | | | '_ \\ / _ \u001B[97m\\___ \\| | | | |   \s
-            \u001B[31m|  _ < (_| | |_| | | | |  __/\u001B[97m___) | |_| | |___\s
-            \u001B[31m|_| \\_\\__,_|\\__, |_| |_|\\___\u001B[97m|____/ \\__\\_\\_____|
-            \u001B[31m            |___/                              \u001B[0m
+                    \u001B[1m\u001B[31m ____                        \u001B[97m____   ___  _    \s
+                    \u001B[31m|  _ \\ __ _ _   _ _ __   ___\u001B[97m/ ___| / _ \\| |   \s
+                    \u001B[31m| |_) / _` | | | | '_ \\ / _ \u001B[97m\\___ \\| | | | |   \s
+                    \u001B[31m|  _ < (_| | |_| | | | |  __/\u001B[97m___) | |_| | |___\s
+                    \u001B[31m|_| \\_\\__,_|\\__, |_| |_|\\___\u001B[97m|____/ \\__\\_\\_____|
+                    \u001B[31m            |___/                              \u001B[0m
             \s""";
 
     public static void main(String[] args) throws IOException {
