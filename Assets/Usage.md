@@ -1,4 +1,4 @@
-# RayneSQL Usage
+# RayneSQL Usage Guide
 
 ### 1. `CREATE` and `USE` a  database
 ```sql
