@@ -27,7 +27,7 @@ cd RayneSQL
 
 ## Usage
 RayneSQL implements a query language which is a simplified version SQL, supporting selects, 
-updates, joins, inserts, and more. All complex compounded/nested conditions are supported 
+updates, joins, inserts, and more. All complex compounded/nested conditions are supported. 
 A short usage guide demonstrating some examples of supported queries can be found [here](Assets/Usage.md), 
 while a full BNF grammar is of the language syntax is found [here](Assets/BNF.md).
 
