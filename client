@@ -4,13 +4,26 @@ echo "Starting client..."
 
 cd RayneSQL || exit 1
 
-./mvnw clean compile exec:java@client | while IFS= read -r line; do
-    if [[ "$line" == *"\n\n"* ]]; then
-        echo "$line"
-        # From now on, print all further output
-        while IFS= read -r next_line; do
-            echo "$next_line"
-        done
-        break
-    fi
+cmd=(./mvnw clean compile exec:java@client)
+
+if [[ "$1" == "-p" && "$2" =~ ^[0-9]+$ ]]; then
+  port=$2
+  
+  if (( port >= 1024 && port <= 49151 )); then
+    cmd=(./mvnw clean compile exec:java@client -Dexec.args="$port")
+  else
+    echo "ERROR: Port number must be between 1024 and 49151."
+    exit 1
+  fi
+fi
+
+"${cmd[@]}" | while IFS= read -r line; do
+  if [[ "$line" == *"\n\n"* ]]; then
+    echo "$line"
+
+    while IFS= read -r next_line; do
+      echo "$next_line"
+    done
+    break
+  fi
 done

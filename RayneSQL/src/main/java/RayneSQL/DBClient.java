@@ -17,12 +17,16 @@ import java.util.Objects;
 
 public class DBClient {
 
+    private static int port = 8888;
     private static final String END_OF_TRANSMISSION = "\u0004";
 
     public static void main(String[] args) {
-        // BufferedReader input = new BufferedReader(new InputStreamReader(System.in))
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        }
+
         try (Terminal input = TerminalBuilder.builder().system(true).build();
-             Socket socket = new Socket("localhost", 8888);
+             Socket socket = new Socket("localhost", port);
              BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
 
