@@ -26,7 +26,7 @@ cd RayneSQL
 ```
 
 ## Usage
-RayneSQL implements a query language which is a simplified version SQL, supporting selects, 
+RayneSQL implements an auto-committing query language which resembles a simplified version of SQL, supporting selects, 
 updates, joins, inserts, and more. All complex compounded/nested conditions are supported. 
 A short usage guide demonstrating some examples of supported queries can be found [here](Assets/Usage.md), 
 while a full BNF grammar of the language syntax is found [here](Assets/BNF.md).
