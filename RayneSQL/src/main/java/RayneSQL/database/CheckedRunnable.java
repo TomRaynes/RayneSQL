@@ -32,17 +32,4 @@ public interface CheckedRunnable {
             lock.unlock();
         }
     }
-
-    static void executeUnderTwoTableReadLock(Table table1, Table table2, VoidRunnable task) throws Exception {
-        table1.getReadLock().lock();
-        table2.getReadLock().lock();
-
-        try {
-            task.run();
-        }
-        finally {
-            table1.getReadLock().unlock();
-            table2.getReadLock().unlock();
-        }
-    }
 }
