@@ -102,7 +102,7 @@ id   Name     Department   Salary
 ```sql
 UPDATE employees SET department='Finance' WHERE name=='George';
 [OK]
-SQL:> SELECT * FROM employees;
+SELECT * FROM employees;
 [OK]
 id   Name     Department   Salary   
 1    John     IT           50000    
